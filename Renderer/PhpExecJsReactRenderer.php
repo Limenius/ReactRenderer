@@ -33,15 +33,15 @@ class PhpExecJsReactRenderer extends AbstractReactRenderer
     /**
      * PhpExecJsReactRenderer constructor.
      *
-     * @param LoggerInterface $logger
      * @param string          $serverBundlePath
      * @param bool            $failLoud
+     * @param LoggerInterface $logger
      */
-    public function __construct(LoggerInterface $logger, $serverBundlePath, $failLoud = false)
+    public function __construct($serverBundlePath, $failLoud = false, LoggerInterface $logger = null)
     {
-        $this->logger = $logger;
         $this->serverBundlePath = $serverBundlePath;
         $this->failLoud = $failLoud;
+        $this->logger = $logger;
     }
 
     /**

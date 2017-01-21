@@ -26,11 +26,11 @@ class ExternalServerReactRenderer extends AbstractReactRenderer
      * @param string          $serverSocketPath
      * @param bool            $failLoud
      */
-    public function __construct(LoggerInterface $logger, $serverSocketPath, $failLoud = false)
+    public function __construct($serverSocketPath, $failLoud = false, LoggerInterface $logger)
     {
-        $this->logger = $logger;
         $this->serverSocketPath = $serverSocketPath;
         $this->failLoud = $failLoud;
+        $this->logger = $logger;
     }
 
     /**

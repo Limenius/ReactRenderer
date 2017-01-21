@@ -103,6 +103,9 @@ JS;
 
     protected function logErrors($consoleReplay)
     {
+        if (!$this->logger) {
+            return;
+        }
         $report = $this->extractErrorLines($consoleReplay);
         foreach ($report as $line) {
             $this->logger->warning($line);
