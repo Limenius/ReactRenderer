@@ -11,7 +11,12 @@
         }
     ],
     "autoload": {
-        "psr-4": { "Limenius\\ReactRenderer\\": "" }
+        "psr-4": { "Limenius\\ReactRenderer\\": "src/Limenius/ReactRenderer" }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Limemius\\ReactRenderer\\Tests\\": "tests/Limenius/ReactRenderer/Tests"
+        }
     },
     "require": {
         "php": ">=5.5.0",
