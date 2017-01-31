@@ -1,19 +1,21 @@
-# ReactBundle
+# ReactRenderer
 
-ReactBundle lets you implement React.js client and server-side rendering in your Symfony projects, allowing the development of universal (isomorphic) applications.
+ReactRenderer lets you implement React.js client and server-side rendering in your PHP projects, allowing the development of universal (isomorphic) applications.
+
+It was previously part of [ReactBundle](https://github.com/Limenius/ReactBundle) but now can be used standalone.
 
 Features include:
 
-* Prerrender server-side React components for SEO, faster page loading, and users that have disabled JavaScript.
+* Prerrender server-side React components for SEO, faster page loading, for users that have disabled JavaScript, or for Progressive Wweb Applications.
 * Twig integration.
 * Client-side render will take the server-side rendered DOM, recognize it, and take control over it without rendering again the component until needed.
 * Error and debug management for server and client side code.
 * Simple integration with Webpack.
 
-[![Build Status](https://travis-ci.org/Limenius/ReactBundle.svg?branch=master)](https://travis-ci.org/Limenius/ReactBundle)
-[![Latest Stable Version](https://poser.pugx.org/limenius/react-bundle/v/stable)](https://packagist.org/packages/limenius/react-bundle)
-[![Latest Unstable Version](https://poser.pugx.org/limenius/react-bundle/v/unstable)](https://packagist.org/packages/limenius/react-bundle)
-[![License](https://poser.pugx.org/limenius/react-bundle/license)](https://packagist.org/packages/limenius/react-bundle)
+[![Build Status](https://travis-ci.org/Limenius/ReactRenderer.svg?branch=master)](https://travis-ci.org/Limenius/ReactBundle)
+[![Latest Stable Version](https://poser.pugx.org/limenius/react-renderer/v/stable)](https://packagist.org/packages/limenius/react-renderer)
+[![Latest Unstable Version](https://poser.pugx.org/limenius/react-renderer/v/unstable)](https://packagist.org/packages/limenius/react-renderer)
+[![License](https://poser.pugx.org/limenius/react-renderer/license)](https://packagist.org/packages/limenius/react-renderer)
 
 # Example
 
