@@ -46,7 +46,7 @@ class PhpExecJsReactRendererTest extends \PHPUnit_Framework_TestCase
      */
     public function testServerBundleNotFound()
     {
-        $this->renderer = new PhpExecJsReactRenderer( __DIR__.'/Fixtures/i-dont-exist.js', $this->logger);
+        $this->renderer = new PhpExecJsReactRenderer(__DIR__.'/Fixtures/i-dont-exist.js', $this->logger);
         $this->renderer->render('MyApp', 'props', 1, null, false);
     }
 
@@ -75,7 +75,7 @@ class PhpExecJsReactRendererTest extends \PHPUnit_Framework_TestCase
             ->getMock();
         $phpExecJs->method('evalJs')
              ->willReturn('{ "html" : "go for it", "hasErrors" : true, "consoleReplayScript": " - my replay"}');
-        $this->renderer = new PhpExecJsReactRenderer( __DIR__.'/Fixtures/server-bundle.js', true, $this->logger);
+        $this->renderer = new PhpExecJsReactRenderer(__DIR__.'/Fixtures/server-bundle.js', true, $this->logger);
         $this->renderer->setPhpExecJs($phpExecJs);
         $this->renderer->render('MyApp', 'props', 1, null, true);
     }
