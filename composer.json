@@ -1,12 +1,12 @@
 {
     "name": "limenius/react-renderer",
     "description": "Client and Server-side React rendering",
-    "type": "symfony-bundle",
-    "keywords": ["react", "isomorphic", "twig"],
+    "type": "library",
+    "keywords": ["react", "reactjs", "isomorphic", "twig"],
     "license": "MIT",
     "authors": [
         {
-            "name": "nacho",
+            "name": "Nacho Martin",
             "email": "nacho@limenius.com"
         }
     ],
