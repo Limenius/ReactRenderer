@@ -35,13 +35,52 @@ $ composer require limenous/react-renderer
 
 ## Usage
 
-### PHP Setup
-
 ### JavaScript and Webpack set up
 
-### Twig Tag
+In order to use React components you need to register them in your JavaScript. This bundle makes use of the React On Rails npm package to render React Components (don't worry, you don't need to write any Ruby code! ;) ).
 
-you can insert React components in your Twig templates with:
+Your code exposing a React component would look like this:
+
+```js
+import ReactOnRails from 'react-on-rails';
+import RecipesApp from './RecipesAppServer';
+
+ReactOnRails.register({ RecipesApp });
+```
+
+Where RecipesApp is the component we want to register in this example.
+
+Note that it is very likely that you will need separated entry points for your server-side and client-side components, for dealing with things like routing. This is a common issue with any universal (isomorphic) application. Again, see the sandbox for an example of how to deal with this.
+
+If you use server-side rendering, you are also expected to have a Webpack bundle for it, containing React, React on Rails and your JavaScript code that will be used to evaluate your component.
+
+Take a look at [the Webpack configuration in the symfony-react-sandbox](https://github.com/Limenius/symfony-react-sandbox/blob/master/webpack.config.serverside.js) for more information.
+
+### Enable Twig Extension
+
+First, you need to configure and enable the Twig extension.
+
+```php
+use Limenius\ReactRenderer\Renderer\PhpExecJsReactRenderer;
+use Limenius\ReactRenderer\Twig\ReactRenderExtension;
+
+$renderer = new PhpExecJsReactRenderer(__DIR__.'/client/build/server-bundle.js');
+$ext = new ReactRenderExtension($renderer, 'both');
+
+$twig->addExtension(new Twig_Extension_StringLoader());
+$twig->addExtension($ext);
+```
+
+`ReactRenderExtension` needs as arguments a *renderer* and a string that defines if we are rendering our React components `client_side`, `render_side` or `both`.
+
+The renderer is one of the renders that inherit from [`AbstractReactRenderer`](ReactRenderer/src/Limenius/ReactRenderer/Renderer/AbstractReactRenderer.php).
+
+This library provides currently two renderers:
+
+* `PhpExecJsReactRenderer`: that uses internally [phpexecjs](https://github.com/nacmartin/phpexecjs) to autodetect the best javascript runtime available.
+* `ExternalServerReactRenderer`: that relies on a external nodeJs server.
+
+Now you can insert React components in your Twig templates with:
 
 ```twig
 {{ react_component('RecipesApp', {'props': props}) }}
@@ -67,9 +106,9 @@ public function homeAction(Request $request)
 
 ### Server-side, client-side or both?
 
-You can choose whether your React components will be rendered only client-side, only server-side or both, either in the configuration as stated above or per twig tag basis.
+You can choose whether your React components will be rendered only client-side, only server-side or both, either in the configuration as stated above or per Twig tag basis.
 
-If you set the option `rendering` of the twig call, you can override your config (default is to render both server-side and client-side).
+If you set the option `rendering` of the Twig call, you can override your config (default is to render both server-side and client-side).
 
 ```twig
 {{ react_component('RecipesApp', {'props': props, 'rendering': 'client_side'}) }}
@@ -119,7 +158,7 @@ This library supports two modes of using server-side rendering:
 
 If you're using [Redux](http://redux.js.org/) you could use this library to hydrate your store's:
 
-Use `redux_store` in your twig file before you render your components depending on your store:
+Use `redux_store` in your Twig file before you render your components depending on your store:
 
 ```twig
 {{ redux_store('MySharedReduxStore', initialState ) }}
@@ -151,7 +190,7 @@ return (
 );
 ```
 
-Make sure you use the same identifier here (`MySharedReduxStore`) as you used in your twig file to set up the store. 
+Make sure you use the same identifier here (`MySharedReduxStore`) as you used in your Twig file to set up the store. 
 
 You have an example in the [Sandbox](https://github.com/Limenius/symfony-react-sandbox).
 
