@@ -64,24 +64,32 @@ class ReactRenderExtension extends \Twig_Extension
      */
     public function reactRenderComponent($componentName, array $options = array())
     {
-        $uuid = 'sfreact-'.uniqid('reactRenderer', true);
-        $props = isset($options['props']) ? $options['props'] : '{}';
-        $propsString = is_array($props) ? json_encode($props) : $props;
+        $props = isset($options['props']) ? $options['props'] : array();
+        $propsArray = is_array($props) ? $props : json_decode($props);
 
         $str = '';
-        $trace = $this->shouldTrace($options);
+        $data = array(
+            'component_name' => $componentName,
+            'props' => $propsArray,
+            'dom_id' => 'sfreact-'.uniqid('reactRenderer', true),
+            'trace' => $this->shouldTrace($options),
+        );
+
         if ($this->shouldRenderClientSide($options)) {
             $str .=  sprintf(
-                '<div class="js-react-on-rails-component" style="display:none" data-component-name="%s" data-props="%s" data-trace="%s" data-dom-id="%s"></div>',
-                $componentName,
-                htmlspecialchars($propsString),
-                var_export($trace, true),
-                $uuid
+                '<script type="application/json" class="js-react-on-rails-component">%s</script>',
+                json_encode($data)
             );
         }
-        $str .= '<div id="'.$uuid.'">';
+        $str .= '<div id="'.$data['dom_id'].'">';
         if ($this->shouldRenderServerSide($options)) {
-            $serverSideStr = $this->renderer->render($componentName, $propsString, $uuid, $this->registeredStores, $trace);
+            $serverSideStr = $this->renderer->render(
+                $data['component_name'],
+                json_encode($data['props']),
+                $data['dom_id'],
+                $this->registeredStores,
+                $data['trace']
+            );
             $str .= $serverSideStr;
         }
         $str .= '</div>';
@@ -101,9 +109,9 @@ class ReactRenderExtension extends \Twig_Extension
         $this->registeredStores[$storeName] = $propsString;
 
         return sprintf(
-            '<div class="js-react-on-rails-store" style="display:none" data-store-name="%s" data-props="%s"></div>',
+            '<script type="application/json" data-js-react-on-rails-store="%s">%s</script>',
             $storeName,
-            htmlspecialchars($propsString)
+            $propsString
         );
     }
 
