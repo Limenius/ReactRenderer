@@ -5,11 +5,12 @@ namespace Limenius\ReactRenderer\Tests\Renderer;
 use Limenius\ReactRenderer\Renderer\PhpExecJsReactRenderer;
 use Psr\Log\LoggerInterface;
 use Nacmartin\PhpExecJs\PhpExecJs;
+use PHPUnit\Framework\TestCase;
 
 /**
  * Class PhpExecJsReactRendererTest
  */
-class PhpExecJsReactRendererTest extends \PHPUnit_Framework_TestCase
+class PhpExecJsReactRendererTest extends TestCase
 {
     /**
      * @var PhpExecJsReactRenderer
