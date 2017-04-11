@@ -4,6 +4,8 @@ ReactRenderer lets you implement React.js client and server-side rendering in yo
 
 It was previously part of [ReactBundle](https://github.com/Limenius/ReactBundle) but now can be used standalone.
 
+If you wish to use it with Silex, check out @teameh [Silex React Renderer Provider](https://github.com/teameh/silex-react-renderer-provider).
+
 Features include:
 
 * Prerrender server-side React components for SEO, faster page loading, for users that have disabled JavaScript, or for Progressive Wweb Applications.
