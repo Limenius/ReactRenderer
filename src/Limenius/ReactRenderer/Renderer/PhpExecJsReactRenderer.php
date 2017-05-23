@@ -74,7 +74,7 @@ class PhpExecJsReactRenderer extends AbstractReactRenderer
     {
         $this->ensurePhpExecJsIsBuilt();
         if ($this->needToSetContext) {
-            $this->phpExecJs->createContext($this->consolePolyfill()."\n".$this->loadServerBundle());
+            $this->phpExecJs->createContext($this->consolePolyfill()."\n".$this->timerPolyfills($trace)."\n".$this->loadServerBundle());
             $this->needToSetContext = false;
         }
         $result = json_decode($this->phpExecJs->evalJs($this->wrap($componentName, $propsString, $uuid, $registeredStores, $trace)), true);
@@ -102,5 +102,56 @@ class PhpExecJsReactRenderer extends AbstractReactRenderer
         if (!$this->phpExecJs) {
             $this->phpExecJs = new PhpExecJs();
         }
+    }
+
+    /**
+     * @param $trace
+     * @return string
+     */
+    protected function timerPolyfills($trace)
+    {
+        $timerPolyfills = <<<JS
+function getStackTrace () {
+  var stack;
+  try {
+    throw new Error('');
+  }
+  catch (error) {
+    stack = error.stack || '';
+  }
+  stack = stack.split('\\n').map(function (line) { return line.trim(); });
+  return stack.splice(stack[0] == 'Error' ? 2 : 1);
+}
+
+function setInterval() {
+  {$this->undefinedForExecJsLogging('setInterval', $trace)}
+}
+
+function setTimeout() {
+  {$this->undefinedForExecJsLogging('setTimeout', $trace)}
+}
+
+function clearTimeout() {
+  {$this->undefinedForExecJsLogging('clearTimeout', $trace)}
+}
+JS;
+        return $timerPolyfills;
+    }
+
+    /**
+     * @param $functionName
+     * @param $trace
+     * @return string
+     */
+    protected function undefinedForExecJsLogging($functionName, $trace)
+    {
+        $undefinedForExecJsLogging = !$trace ? '' : <<<JS
+console.error(
+  '"$functionName" is not defined for execJS. See https://github.com/sstephenson/execjs#faq. ' +
+  'Note babel-polyfill may call this.'
+);
+console.error(getStackTrace().join('\\n'));
+JS;
+        return $undefinedForExecJsLogging;
     }
 }
