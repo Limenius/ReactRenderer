@@ -68,6 +68,25 @@ class PhpExecJsReactRendererTest extends TestCase
     }
 
     /**
+     * Test with React on Rails bundle
+     */
+    public function testReactOnRails()
+    {
+        /**
+         * import React from 'react';
+         * import ReactOnRails from 'react-on-rails';
+         * ReactOnRails.register({ MyApp: props => <h1>{props.msg}</h1> });
+         */
+        $this->renderer = new PhpExecJsReactRenderer(__DIR__.'/Fixtures/server-bundle-react.js', false);
+
+        $expected = '<h1 data-reactroot="" data-reactid="1" data-react-checksum="-605941478">It Works!</h1>' . "\n" .
+            '<script id="consoleReplayLog">' . "\n" .
+            'console.log.apply(console, ["[SERVER] RENDERED MyApp to dom node with id: 1 with railsContext:","{\"serverSide\":true}"]);' . "\n" .
+            '</script>';
+        $this->assertEquals($expected, $this->renderer->render('MyApp', '{msg:"It Works!"}', 1, null, true));
+    }
+
+    /**
      * @expectedException \Limenius\ReactRenderer\Exception\EvalJsException
      */
     public function testFailLoud()
