@@ -79,10 +79,10 @@ class PhpExecJsReactRendererTest extends TestCase
          */
         $this->renderer = new PhpExecJsReactRenderer(__DIR__.'/Fixtures/server-bundle-react.js', false);
 
-        $expected = '<h1 data-reactroot="" data-reactid="1" data-react-checksum="-605941478">It Works!</h1>' . "\n" .
-            '<script id="consoleReplayLog">' . "\n" .
-            'console.log.apply(console, ["[SERVER] RENDERED MyApp to dom node with id: 1 with railsContext:","{\"serverSide\":true}"]);' . "\n" .
-            '</script>';
+        $expected = '<h1 data-reactroot="" data-reactid="1" data-react-checksum="-605941478">It Works!</h1>'."\n";
+        $expected .= '<script id="consoleReplayLog">'."\n";
+        $expected .= 'console.log.apply(console, ["[SERVER] RENDERED MyApp to dom node with id: 1 with railsContext:","{\"serverSide\":true}"]);'."\n";
+        $expected .= '</script>';
         $this->assertEquals($expected, $this->renderer->render('MyApp', '{msg:"It Works!"}', 1, null, true));
     }
 

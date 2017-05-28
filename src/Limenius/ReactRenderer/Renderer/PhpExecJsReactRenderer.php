@@ -135,6 +135,7 @@ function clearTimeout() {
   {$this->undefinedForPhpExecJsLogging('clearTimeout', $trace)}
 }
 JS;
+
         return $timerPolyfills;
     }
 
@@ -152,6 +153,7 @@ console.error(
 );
 console.error(getStackTrace().join('\\n'));
 JS;
+
         return $undefinedForPhpExecJsLogging;
     }
 }
