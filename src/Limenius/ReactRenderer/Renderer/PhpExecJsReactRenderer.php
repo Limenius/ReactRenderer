@@ -74,7 +74,7 @@ class PhpExecJsReactRenderer extends AbstractReactRenderer
     {
         $this->ensurePhpExecJsIsBuilt();
         if ($this->needToSetContext) {
-            $this->phpExecJs->createContext($this->consolePolyfill()."\n".$this->loadServerBundle());
+            $this->phpExecJs->createContext($this->consolePolyfill()."\n".$this->timerPolyfills($trace)."\n".$this->loadServerBundle());
             $this->needToSetContext = false;
         }
         $result = json_decode($this->phpExecJs->evalJs($this->wrap($componentName, $propsString, $uuid, $registeredStores, $trace)), true);
@@ -102,5 +102,56 @@ class PhpExecJsReactRenderer extends AbstractReactRenderer
         if (!$this->phpExecJs) {
             $this->phpExecJs = new PhpExecJs();
         }
+    }
+
+    /**
+     * @param $trace
+     * @return string
+     */
+    protected function timerPolyfills($trace)
+    {
+        $timerPolyfills = <<<JS
+function getStackTrace () {
+  var stack;
+  try {
+    throw new Error('');
+  }
+  catch (error) {
+    stack = error.stack || '';
+  }
+  stack = stack.split('\\n').map(function (line) { return line.trim(); });
+  return stack.splice(stack[0] == 'Error' ? 2 : 1);
+}
+
+function setInterval() {
+  {$this->undefinedForPhpExecJsLogging('setInterval', $trace)}
+}
+
+function setTimeout() {
+  {$this->undefinedForPhpExecJsLogging('setTimeout', $trace)}
+}
+
+function clearTimeout() {
+  {$this->undefinedForPhpExecJsLogging('clearTimeout', $trace)}
+}
+JS;
+        return $timerPolyfills;
+    }
+
+    /**
+     * @param $functionName
+     * @param $trace
+     * @return string
+     */
+    protected function undefinedForPhpExecJsLogging($functionName, $trace)
+    {
+        $undefinedForPhpExecJsLogging = !$trace ? '' : <<<JS
+console.error(
+  '"$functionName" is not defined for phpexecjs. https://github.com/nacmartin/phpexecjs#why-cant-i-use-some-functions-like-settimeout. ' +
+  'Note babel-polyfill may call this.'
+);
+console.error(getStackTrace().join('\\n'));
+JS;
+        return $undefinedForPhpExecJsLogging;
     }
 }
