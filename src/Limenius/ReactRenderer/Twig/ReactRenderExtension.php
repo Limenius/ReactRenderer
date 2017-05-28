@@ -3,6 +3,7 @@
 namespace Limenius\ReactRenderer\Twig;
 
 use Limenius\ReactRenderer\Renderer\AbstractReactRenderer;
+use Limenius\ReactRenderer\Context\ContextProvider;
 
 /**
  * Class ReactRenderExtension
@@ -12,7 +13,10 @@ class ReactRenderExtension extends \Twig_Extension
     protected $renderServerSide = false;
     protected $renderClientSide = false;
     protected $registeredStores = array();
+    protected $needsRailsContext = true;
+
     private $renderer;
+    private $contextProvider;
     private $trace;
 
     /**
@@ -24,9 +28,10 @@ class ReactRenderExtension extends \Twig_Extension
      *
      * @return ReactRenderExtension
      */
-    public function __construct(AbstractReactRenderer $renderer = null, $defaultRendering, $trace = false)
+    public function __construct(AbstractReactRenderer $renderer = null, ContextProvider $contextProvider, $defaultRendering, $trace = false)
     {
         $this->renderer = $renderer;
+        $this->contextProvider = $contextProvider;
         $this->trace = $trace;
 
         switch ($defaultRendering) {
@@ -72,7 +77,9 @@ class ReactRenderExtension extends \Twig_Extension
         $data = $propsArray;
         $trace = $this->shouldTrace($options);
 
+
         if ($this->shouldRenderClientSide($options)) {
+            $str .= $this->renderContext();
             $str .=  sprintf(
                 '<script type="application/json" class="js-react-on-rails-component" data-dom-id="%s" data-component-name="%s" %s>%s</script>',
                 $domId,
@@ -108,11 +115,13 @@ class ReactRenderExtension extends \Twig_Extension
         $propsString = is_array($props) ? json_encode($props) : $props;
         $this->registeredStores[$storeName] = $propsString;
 
-        return sprintf(
+
+        $reduxStoreTag = sprintf(
             '<script type="application/json" data-js-react-on-rails-store="%s">%s</script>',
             $storeName,
             $propsString
         );
+        return $this->renderContext() . $reduxStoreTag;
     }
 
     /**
@@ -167,5 +176,21 @@ class ReactRenderExtension extends \Twig_Extension
     protected function shouldTrace($options)
     {
         return (isset($options['trace']) ? $options['trace'] : $this->trace);
+    }
+
+    /**
+     * renderContext
+     *
+     * @return string a html with the context
+     */
+    protected function renderContext()
+    {
+        if ($this->needsRailsContext) {
+            $this->needsRailsContext = false;
+            return sprintf(
+                '<script type="application/json" id="js-react-on-rails-context">%s</script>',
+                json_encode($this->contextProvider->getContext(false))
+            );
+        }
     }
 }

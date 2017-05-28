@@ -4,6 +4,7 @@ namespace Limenius\ReactRenderer\Renderer;
 
 use Limenius\ReactRenderer\Exception\EvalJsException;
 use Psr\Log\LoggerInterface;
+use Limenius\ReactRenderer\Context\ContextProvider;
 
 /**
  * Class AbstractReactRenderer
@@ -14,6 +15,11 @@ abstract class AbstractReactRenderer
      * @var LoggerInterface
      */
     protected $logger;
+
+    /**
+     * @var ContextProvider
+     */
+    protected $contextProvider;
 
     /**
      * @param string $componentName
@@ -84,6 +90,7 @@ JS;
     {
         $traceStr = $trace ? 'true' : 'false';
         $initializedReduxStores = $this->initializeReduxStores($registeredStores);
+        $context = json_encode($this->contextProvider->getContext(true));
         $wrapperJs = <<<JS
 (function() {
   $initializedReduxStores
@@ -93,7 +100,7 @@ JS;
     domNodeId: '$uuid',
     props: props,
     trace: $traceStr,
-    railsContext: { serverSide: true }
+    railsContext: $context,
   });
 })();
 JS;

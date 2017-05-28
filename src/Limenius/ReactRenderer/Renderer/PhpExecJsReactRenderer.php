@@ -4,6 +4,7 @@ namespace Limenius\ReactRenderer\Renderer;
 
 use Nacmartin\PhpExecJs\PhpExecJs;
 use Psr\Log\LoggerInterface;
+use Limenius\ReactRenderer\Context\ContextProvider;
 
 /**
  * Class PhpExecJsReactRenderer
@@ -37,11 +38,12 @@ class PhpExecJsReactRenderer extends AbstractReactRenderer
      * @param bool            $failLoud
      * @param LoggerInterface $logger
      */
-    public function __construct($serverBundlePath, $failLoud = false, LoggerInterface $logger = null)
+    public function __construct($serverBundlePath, $failLoud = false, ContextProvider $contextProvider, LoggerInterface $logger = null)
     {
         $this->serverBundlePath = $serverBundlePath;
         $this->failLoud = $failLoud;
         $this->logger = $logger;
+        $this->contextProvider = $contextProvider;
     }
 
     /**
