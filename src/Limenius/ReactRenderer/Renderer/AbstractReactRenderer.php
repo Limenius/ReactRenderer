@@ -93,9 +93,9 @@ JS;
     domNodeId: '$uuid',
     props: props,
     trace: $traceStr,
-    location: ''
+    railsContext: { serverSide: true }
   });
-})()
+})();
 JS;
 
         return $wrapperJs;
