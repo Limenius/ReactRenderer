@@ -124,15 +124,15 @@ function getStackTrace () {
 }
 
 function setInterval() {
-  {$this->undefinedForExecJsLogging('setInterval', $trace)}
+  {$this->undefinedForPhpExecJsLogging('setInterval', $trace)}
 }
 
 function setTimeout() {
-  {$this->undefinedForExecJsLogging('setTimeout', $trace)}
+  {$this->undefinedForPhpExecJsLogging('setTimeout', $trace)}
 }
 
 function clearTimeout() {
-  {$this->undefinedForExecJsLogging('clearTimeout', $trace)}
+  {$this->undefinedForPhpExecJsLogging('clearTimeout', $trace)}
 }
 JS;
         return $timerPolyfills;
@@ -143,15 +143,15 @@ JS;
      * @param $trace
      * @return string
      */
-    protected function undefinedForExecJsLogging($functionName, $trace)
+    protected function undefinedForPhpExecJsLogging($functionName, $trace)
     {
-        $undefinedForExecJsLogging = !$trace ? '' : <<<JS
+        $undefinedForPhpExecJsLogging = !$trace ? '' : <<<JS
 console.error(
-  '"$functionName" is not defined for execJS. See https://github.com/sstephenson/execjs#faq. ' +
+  '"$functionName" is not defined for phpexecjs. https://github.com/nacmartin/phpexecjs#why-cant-i-use-some-functions-like-settimeout. ' +
   'Note babel-polyfill may call this.'
 );
 console.error(getStackTrace().join('\\n'));
 JS;
-        return $undefinedForExecJsLogging;
+        return $undefinedForPhpExecJsLogging;
     }
 }
