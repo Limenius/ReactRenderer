@@ -85,7 +85,7 @@ class ReactRenderExtension extends \Twig_Extension
         if ($this->shouldRenderServerSide($options)) {
             $serverSideStr = $this->renderer->render(
                 $componentName,
-                json_encode($data['props']),
+                json_encode($data),
                 $domId,
                 $this->registeredStores,
                 $trace
