@@ -3,7 +3,7 @@
 namespace Limenius\ReactRenderer\Twig;
 
 use Limenius\ReactRenderer\Renderer\AbstractReactRenderer;
-use Limenius\ReactRenderer\Context\ContextProvider;
+use Limenius\ReactRenderer\Context\ContextProviderInterface;
 
 /**
  * Class ReactRenderExtension
@@ -13,7 +13,7 @@ class ReactRenderExtension extends \Twig_Extension
     protected $renderServerSide = false;
     protected $renderClientSide = false;
     protected $registeredStores = array();
-    protected $needsRailsContext = true;
+    protected $needsToSetRailsContext = true;
 
     private $renderer;
     private $contextProvider;
@@ -28,7 +28,7 @@ class ReactRenderExtension extends \Twig_Extension
      *
      * @return ReactRenderExtension
      */
-    public function __construct(AbstractReactRenderer $renderer = null, ContextProvider $contextProvider, $defaultRendering, $trace = false)
+    public function __construct(AbstractReactRenderer $renderer = null, ContextProviderInterface $contextProvider, $defaultRendering, $trace = false)
     {
         $this->renderer = $renderer;
         $this->contextProvider = $contextProvider;
@@ -181,12 +181,12 @@ class ReactRenderExtension extends \Twig_Extension
     /**
      * renderContext
      *
-     * @return string a html with the context
+     * @return string a html script tag with the context
      */
     protected function renderContext()
     {
-        if ($this->needsRailsContext) {
-            $this->needsRailsContext = false;
+        if ($this->needsToSetRailsContext) {
+            $this->needsToSetRailsContext = false;
             return sprintf(
                 '<script type="application/json" id="js-react-on-rails-context">%s</script>',
                 json_encode($this->contextProvider->getContext(false))

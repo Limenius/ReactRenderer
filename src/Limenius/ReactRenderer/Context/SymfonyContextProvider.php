@@ -9,15 +9,25 @@ use Symfony\Component\HttpFoundation\RequestStack;
  *
  * Extracts context information from a Symfony Request
  */
-class ContextProvider
+class SymfonyContextProvider implements ContextProviderInterface
 {
     private $requestStack;
 
+    /**
+     * __construct
+     *
+     * @param RequestStack $requestStack
+     */
     public function __construct(RequestStack $requestStack)
     {
         $this->requestStack = $requestStack;
     }
 
+    /**
+     * getContext
+     *
+     * @param boolean $serverSide whether is this a server side context
+     */
     public function getContext($serverSide)
     {
         $request = $this->requestStack->getCurrentRequest();
@@ -31,7 +41,7 @@ class ContextProvider
             'base' => $request->getBaseUrl(),
             'pathname' => $request->getPathInfo(),
             'search' => $request->getQueryString(),
-            ];
+        ];
     }
 
 }
