@@ -65,9 +65,13 @@ First, you need to configure and enable the Twig extension.
 ```php
 use Limenius\ReactRenderer\Renderer\PhpExecJsReactRenderer;
 use Limenius\ReactRenderer\Twig\ReactRenderExtension;
+use Limenius\ReactRenderer\Context\SymfonyContextProvider;
 
-$renderer = new PhpExecJsReactRenderer(__DIR__.'/client/build/server-bundle.js');
-$ext = new ReactRenderExtension($renderer, 'both');
+// SymfonyContextProvider provides information about the current request, such as hostname and path
+// We need an instance of Symfony\Component\HttpFoundation\RequestStack to use it
+$contextProvider = new SymfonyContextProvider($requestStack);
+$renderer = new PhpExecJsReactRenderer(__DIR__.'/client/build/server-bundle.js', false, $contextProvider);
+$ext = new ReactRenderExtension($renderer, $contextProvider, 'both');
 
 $twig->addExtension(new Twig_Extension_StringLoader());
 $twig->addExtension($ext);
@@ -147,6 +151,39 @@ Note that in this case you will probably see a React warning like
 *"Warning: render(): Target node has markup rendered by React, but there are unrelated nodes as well. This is most commonly caused by white-space inserted around server-rendered markup."*
 
 This warning is harmlesss and will go away when you disable trace in production. It means that when rendering the component client-side and comparing with the server-side equivalent, React has found extra characters. Those characters are your debug messages, so don't worry about it.
+
+### Context
+
+This library will provide context about the current request to React components. Your componets will receive two arguments on instantiation:
+
+```js
+const App = (initialProps, context) => {
+}
+```
+
+The Symfony context provider has this implementation:
+
+```php
+    public function getContext($serverSide)
+    {
+        $request = $this->requestStack->getCurrentRequest();
+
+        return [
+            'serverSide' => $serverSide,
+            'href' => $request->getSchemeAndHttpHost().$request->getRequestUri(),
+            'location' => $request->getRequestUri(),
+            'scheme' => $request->getScheme(),
+            'host' => $request->getHost(),
+            'port' => $request->getPort(),
+            'base' => $request->getBaseUrl(),
+            'pathname' => $request->getPathInfo(),
+            'search' => $request->getQueryString(),
+        ];
+    }
+
+```
+
+So you can access these properties in your React components, to get information about the request, and if it has been rendered server side or client side.
 
 ### Server-Side modes
 
