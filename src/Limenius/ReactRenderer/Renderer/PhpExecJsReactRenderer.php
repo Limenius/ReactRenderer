@@ -34,9 +34,10 @@ class PhpExecJsReactRenderer extends AbstractReactRenderer
     /**
      * PhpExecJsReactRenderer constructor.
      *
-     * @param string          $serverBundlePath
-     * @param bool            $failLoud
-     * @param LoggerInterface $logger
+     * @param string                   $serverBundlePath
+     * @param bool                     $failLoud
+     * @param ContextProviderInterface $contextProvider
+     * @param LoggerInterface          $logger
      */
     public function __construct($serverBundlePath, $failLoud = false, ContextProviderInterface $contextProvider, LoggerInterface $logger = null)
     {

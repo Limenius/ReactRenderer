@@ -27,10 +27,12 @@ class SymfonyContextProvider implements ContextProviderInterface
      * getContext
      *
      * @param boolean $serverSide whether is this a server side context
+     * @return array the context information
      */
     public function getContext($serverSide)
     {
         $request = $this->requestStack->getCurrentRequest();
+
         return [
             'serverSide' => $serverSide,
             'href' => $request->getSchemeAndHttpHost().$request->getRequestUri(),
@@ -43,5 +45,4 @@ class SymfonyContextProvider implements ContextProviderInterface
             'search' => $request->getQueryString(),
         ];
     }
-
 }

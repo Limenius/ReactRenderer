@@ -22,9 +22,10 @@ class ReactRenderExtension extends \Twig_Extension
     /**
      * Constructor
      *
-     * @param AbstractReactRenderer $renderer
-     * @param string                $defaultRendering
-     * @param boolean               $trace
+     * @param AbstractReactRenderer    $renderer
+     * @param ContextProviderInterface $contextProvider
+     * @param string                   $defaultRendering
+     * @param boolean                  $trace
      *
      * @return ReactRenderExtension
      */
@@ -123,7 +124,8 @@ class ReactRenderExtension extends \Twig_Extension
             $storeName,
             $propsString
         );
-        return $this->renderContext() . $reduxStoreTag;
+
+        return $this->renderContext().$reduxStoreTag;
     }
 
     /**
@@ -189,6 +191,7 @@ class ReactRenderExtension extends \Twig_Extension
     {
         if ($this->needsToSetRailsContext) {
             $this->needsToSetRailsContext = false;
+
             return sprintf(
                 '<script type="application/json" id="js-react-on-rails-context">%s</script>',
                 json_encode($this->contextProvider->getContext(false))
