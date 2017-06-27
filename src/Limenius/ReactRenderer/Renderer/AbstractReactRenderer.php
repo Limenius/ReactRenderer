@@ -58,7 +58,7 @@ JS;
      *
      * @return string
      */
-    protected function initializeReduxStores($registeredStores = array())
+    protected function initializeReduxStores($registeredStores = array(), $context = array())
     {
         if (!is_array($registeredStores) || empty($registeredStores)) {
             return '';
@@ -68,8 +68,9 @@ JS;
         foreach ($registeredStores as $storeName => $reduxProps) {
             $result .= <<<JS
 reduxProps = $reduxProps;
+context = $context;
 storeGenerator = ReactOnRails.getStoreGenerator('$storeName');
-store = storeGenerator(reduxProps);
+store = storeGenerator(reduxProps, context);
 ReactOnRails.setStore('$storeName', store);
 JS;
         }
@@ -89,8 +90,8 @@ JS;
     protected function wrap($name, $propsString, $uuid, $registeredStores = array(), $trace)
     {
         $traceStr = $trace ? 'true' : 'false';
-        $initializedReduxStores = $this->initializeReduxStores($registeredStores);
         $context = json_encode($this->contextProvider->getContext(true));
+        $initializedReduxStores = $this->initializeReduxStores($registeredStores, $context);
         $wrapperJs = <<<JS
 (function() {
   $initializedReduxStores
