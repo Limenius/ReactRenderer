@@ -73,29 +73,31 @@ class ReactRenderExtension extends \Twig_Extension
         $propsArray = is_array($props) ? $props : json_decode($props);
 
         $str = '';
-        $domId = 'sfreact-'.uniqid('reactRenderer', true);
-        $data = $propsArray;
-        $trace = $this->shouldTrace($options);
+        $data = array(
+            'component_name' => $componentName,
+            'props' => $propsArray,
+            'dom_id' => 'sfreact-'.uniqid('reactRenderer', true),
+            'trace' => $this->shouldTrace($options),
+        );
 
 
         if ($this->shouldRenderClientSide($options)) {
             $str .= $this->renderContext();
             $str .=  sprintf(
-                '<script type="application/json" class="js-react-on-rails-component" data-dom-id="%s" data-component-name="%s" %s>%s</script>',
-                $domId,
-                $componentName,
-                $trace ? 'trace' : '',
-                json_encode($data)
+                '<script type="application/json" class="js-react-on-rails-component" data-component-name="%s" data-dom-id="%s">%s</script>',
+                $data['component_name'],
+                $data['dom_id'],
+                json_encode($data['props'])
             );
         }
-        $str .= '<div id="'.$domId.'">';
+        $str .= '<div id="'.$data['dom_id'].'">';
         if ($this->shouldRenderServerSide($options)) {
             $serverSideStr = $this->renderer->render(
-                $componentName,
-                json_encode($data),
-                $domId,
+                $data['component_name'],
+                json_encode($data['props']),
+                $data['dom_id'],
                 $this->registeredStores,
-                $trace
+                $data['trace']
             );
             $str .= $serverSideStr;
         }
