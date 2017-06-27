@@ -3,7 +3,7 @@
 namespace Limenius\ReactRenderer\Tests\Renderer;
 
 use Limenius\ReactRenderer\Renderer\PhpExecJsReactRenderer;
-use Limenius\ReactRenderer\Context\ContextProvider;
+use Limenius\ReactRenderer\Context\ContextProviderInterface;
 use Psr\Log\LoggerInterface;
 use Nacmartin\PhpExecJs\PhpExecJs;
 use PHPUnit\Framework\TestCase;
@@ -37,7 +37,7 @@ class PhpExecJsReactRendererTest extends TestCase
             ->getMock();
         $this->phpExecJs = $this->getMockBuilder(PhpExecJs::class)
             ->getMock();
-        $this->contextProvider = $this->getMockBuilder(ContextProvider::class)
+        $this->contextProvider = $this->getMockBuilder(ContextProviderInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
         $this->phpExecJs->method('evalJs')
