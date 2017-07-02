@@ -64,7 +64,7 @@ JS;
             return '';
         }
 
-        $result = '';
+        $result = 'var reduxProps, context, storeGenerator, store' . PHP_EOL;
         foreach ($registeredStores as $storeName => $reduxProps) {
             $result .= <<<JS
 reduxProps = $reduxProps;
