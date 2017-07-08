@@ -2,8 +2,8 @@
 
 namespace Limenius\ReactRenderer\Renderer;
 
+use Limenius\ReactRenderer\Context\ContextProviderInterface;
 use Psr\Log\LoggerInterface;
-use Limenius\ReactRenderer\Context\ContextProvider;
 
 /**
  * Class ExternalServerReactRenderer
@@ -23,12 +23,12 @@ class ExternalServerReactRenderer extends AbstractReactRenderer
     /**
      * ExternalServerReactRenderer constructor.
      *
-     * @param string          $serverSocketPath
-     * @param bool            $failLoud
-     * @param ContextProvider $contextProvider
-     * @param LoggerInterface $logger
+     * @param string                   $serverSocketPath
+     * @param bool                     $failLoud
+     * @param ContextProviderInterface $contextProvider
+     * @param LoggerInterface          $logger
      */
-    public function __construct($serverSocketPath, $failLoud = false, ContextProvider $contextProvider, LoggerInterface $logger = null)
+    public function __construct($serverSocketPath, $failLoud = false, ContextProviderInterface $contextProvider, LoggerInterface $logger = null)
     {
         $this->serverSocketPath = $serverSocketPath;
         $this->failLoud = $failLoud;

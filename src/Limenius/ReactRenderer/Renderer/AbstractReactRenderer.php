@@ -4,7 +4,7 @@ namespace Limenius\ReactRenderer\Renderer;
 
 use Limenius\ReactRenderer\Exception\EvalJsException;
 use Psr\Log\LoggerInterface;
-use Limenius\ReactRenderer\Context\ContextProvider;
+use Limenius\ReactRenderer\Context\ContextProviderInterface;
 
 /**
  * Class AbstractReactRenderer
@@ -17,7 +17,7 @@ abstract class AbstractReactRenderer
     protected $logger;
 
     /**
-     * @var ContextProvider
+     * @var ContextProviderInterface
      */
     protected $contextProvider;
 
@@ -56,6 +56,7 @@ JS;
     /**
      * @param array $registeredStores
      *
+     * @param array $context
      * @return string
      */
     protected function initializeReduxStores($registeredStores = array(), $context = array())
