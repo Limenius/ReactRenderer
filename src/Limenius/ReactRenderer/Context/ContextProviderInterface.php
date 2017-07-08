@@ -2,8 +2,6 @@
 
 namespace Limenius\ReactRenderer\Context;
 
-use Symfony\Component\HttpFoundation\RequestStack;
-
 /**
  * Interface ContextProviderInterface
  *

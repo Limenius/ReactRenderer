@@ -197,5 +197,7 @@ class ReactRenderExtension extends \Twig_Extension
                 json_encode($this->contextProvider->getContext(false))
             );
         }
+
+        return '';
     }
 }
