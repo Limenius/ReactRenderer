@@ -60,7 +60,8 @@ class ExternalServerReactRenderer extends AbstractReactRenderer
         }
 
         $sock = stream_socket_client($this->serverSocketPath, $errno, $errstr);
-        fwrite($sock, $this->wrap($componentName, $propsString, $uuid, $registeredStores, $trace));
+        stream_socket_sendto($sock, $this->wrap($componentName, $propsString, $uuid, $registeredStores, $trace));
+        stream_socket_shutdown($sock, STREAM_SHUT_WR);
 
         $contents = '';
 
