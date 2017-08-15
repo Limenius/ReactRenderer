@@ -8,7 +8,7 @@ If you wish to use it with Silex, check out @teameh [Silex React Renderer Servic
 
 Features include:
 
-* Prerrender server-side React components for SEO, faster page loading, for users that have disabled JavaScript, or for Progressive Wweb Applications.
+* Prerender server-side React components for SEO, faster page loading, for users that have disabled JavaScript, or for Progressive Web Applications.
 * Twig integration.
 * Client-side render will take the server-side rendered DOM, recognize it, and take control over it without rendering again the component until needed.
 * Error and debug management for server and client side code.
@@ -138,7 +138,7 @@ You can explore these options by looking at the generated HTML code.
 
 ### Debugging
 
-One imporant point when running server-side JavaScript code from PHP is the management of debug messages thrown by `console.log`. ReactRenderer, inspired React on Rails, has means to replay `console.log` messages into the JavaScript console of your browser.
+One important point when running server-side JavaScript code from PHP is the management of debug messages thrown by `console.log`. ReactRenderer, inspired React on Rails, has means to replay `console.log` messages into the JavaScript console of your browser.
 
 To enable tracing, you can set a config parameter, as stated above, or you can set it in your template in this way:
 
@@ -150,11 +150,11 @@ Note that in this case you will probably see a React warning like
 
 *"Warning: render(): Target node has markup rendered by React, but there are unrelated nodes as well. This is most commonly caused by white-space inserted around server-rendered markup."*
 
-This warning is harmlesss and will go away when you disable trace in production. It means that when rendering the component client-side and comparing with the server-side equivalent, React has found extra characters. Those characters are your debug messages, so don't worry about it.
+This warning is harmless and will go away when you disable trace in production. It means that when rendering the component client-side and comparing with the server-side equivalent, React has found extra characters. Those characters are your debug messages, so don't worry about it.
 
 ### Context
 
-This library will provide context about the current request to React components. Your componets will receive two arguments on instantiation:
+This library will provide context about the current request to React components. Your components will receive two arguments on instantiation:
 
 ```js
 const App = (initialProps, context) => {
@@ -189,7 +189,7 @@ So you can access these properties in your React components, to get information 
 
 This library supports two modes of using server-side rendering:
 
-* Using [PhpExecJs](https://github.com/nacmartin/phpexecjs) to auto-detect a JavaScript environment (call node.js via terminal command or use V8Js PHP) and run JavaScript code through it. This is more friendly for development, as every time you change your code it will have effect immediatly, but it is also more slow, because for every request the server bundle containing React must be copied either to a file (if your runtime is node.js) or via memcpy (if you have the V8Js PHP extension enabled) and re-interpreted. It is more **suited for development**, or in environments where you can cache everything.
+* Using [PhpExecJs](https://github.com/nacmartin/phpexecjs) to auto-detect a JavaScript environment (call node.js via terminal command or use V8Js PHP) and run JavaScript code through it. This is more friendly for development, as every time you change your code it will have effect immediately, but it is also more slow, because for every request the server bundle containing React must be copied either to a file (if your runtime is node.js) or via memcpy (if you have the V8Js PHP extension enabled) and re-interpreted. It is more **suited for development**, or in environments where you can cache everything.
 
 * Using an external node.js server ([Example](https://github.com/Limenius/symfony-react-sandbox/tree/master/app/Resources/node-server/server.js)). It will use a dummy server, that knows nothing about your logic to render React for you. This is faster but introduces more operational complexity (you have to keep the node server running). For this reason it is more **suited for production**.
 
