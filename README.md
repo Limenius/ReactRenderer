@@ -30,7 +30,7 @@ ReactRenderer uses Composer, please checkout the [composer website](http://getco
 This command will install `ReactRenderer` into your project.
 
 ```bash
-$ composer require limenous/react-renderer
+$ composer require limenius/react-renderer
 ```
 
 > ReactRenderer follows the PSR-4 convention names for its classes so you can integrate it with your autoloader.
