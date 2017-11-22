@@ -5,6 +5,7 @@ namespace Limenius\ReactRenderer\Renderer;
 use Nacmartin\PhpExecJs\PhpExecJs;
 use Psr\Log\LoggerInterface;
 use Limenius\ReactRenderer\Context\ContextProviderInterface;
+use Psr\Cache\CacheItemPoolInterface;
 
 /**
  * Class PhpExecJsReactRenderer
@@ -32,6 +33,16 @@ class PhpExecJsReactRenderer extends AbstractReactRenderer
     protected $failLoud;
 
     /**
+     * @var cache
+     */
+    protected $cache;
+
+    /**
+     * @var cacheKey
+     */
+    protected $cacheKey;
+
+    /**
      * PhpExecJsReactRenderer constructor.
      *
      * @param string                   $serverBundlePath
@@ -40,11 +51,18 @@ class PhpExecJsReactRenderer extends AbstractReactRenderer
      * @param LoggerInterface          $logger
      */
     public function __construct($serverBundlePath, $failLoud = false, ContextProviderInterface $contextProvider, LoggerInterface $logger = null)
+
     {
         $this->serverBundlePath = $serverBundlePath;
         $this->failLoud = $failLoud;
         $this->logger = $logger;
         $this->contextProvider = $contextProvider;
+    }
+
+    public function setCache(CacheItemPoolInterface $cache, $cacheKey)
+    {
+        $this->cache = $cache;
+        $this->cacheKey = $cacheKey;
     }
 
     /**
@@ -77,7 +95,10 @@ class PhpExecJsReactRenderer extends AbstractReactRenderer
     {
         $this->ensurePhpExecJsIsBuilt();
         if ($this->needToSetContext) {
-            $this->phpExecJs->createContext($this->consolePolyfill()."\n".$this->timerPolyfills($trace)."\n".$this->loadServerBundle());
+            if ($this->phpExecJs->supportsCache()) {
+                $this->phpExecJs->setCache($this->cache);
+            }
+            $this->phpExecJs->createContext($this->consolePolyfill()."\n".$this->timerPolyfills($trace)."\n".$this->loadServerBundle(), $this->cacheKey);
             $this->needToSetContext = false;
         }
         $result = json_decode($this->phpExecJs->evalJs($this->wrap($componentName, $propsString, $uuid, $registeredStores, $trace)), true);
