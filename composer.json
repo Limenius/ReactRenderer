@@ -20,7 +20,7 @@
     },
     "require": {
         "php": ">=5.5.0",
-        "nacmartin/phpexecjs": "^0.8",
+        "nacmartin/phpexecjs": "^1.0",
         "twig/twig": "^1.20|^2.0"
     },
     "require-dev": {
