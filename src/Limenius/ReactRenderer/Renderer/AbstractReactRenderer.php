@@ -28,7 +28,7 @@ abstract class AbstractReactRenderer
      * @param array  $registeredStores
      * @param bool   $trace
      *
-     * @return string
+     * @return array
      */
     abstract public function render($componentName, $propsString, $uuid, $registeredStores = array(), $trace);
 

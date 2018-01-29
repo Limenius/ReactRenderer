@@ -51,7 +51,7 @@ class ExternalServerReactRenderer extends AbstractReactRenderer
      * @param array  $registeredStores
      * @param bool   $trace
      *
-     * @return string
+     * @return array
      */
     public function render($componentName, $propsString, $uuid, $registeredStores = array(), $trace)
     {
@@ -77,6 +77,9 @@ class ExternalServerReactRenderer extends AbstractReactRenderer
             }
         }
 
-        return $result['html'].$result['consoleReplayScript'];
+        return [
+            'evaluated' => $result['html'],
+            'consoleReplay' => $result['consoleReplayScript']
+        ];
     }
 }
