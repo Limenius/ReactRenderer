@@ -41,7 +41,7 @@ class PhpExecJsReactRendererTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
         $this->phpExecJs->method('evalJs')
-             ->willReturn('{ "html" : "go for it", "hasErrors" : false, "consoleReplayScript": " - my replay"}');
+            ->willReturn('{ "html" : "go for it", "hasErrors" : false, "consoleReplayScript": " - my replay"}');
         $this->renderer = new PhpExecJsReactRenderer(__DIR__.'/Fixtures/server-bundle.js', false, $this->contextProvider, $this->logger);
         $this->renderer->setPhpExecJs($this->phpExecJs);
     }
@@ -60,7 +60,12 @@ class PhpExecJsReactRendererTest extends TestCase
      */
     public function testPlus()
     {
-        $this->assertEquals('go for it - my replay', $this->renderer->render('MyApp', 'props', 1, null, false));
+        $this->assertEquals([
+            'evaluated' => 'go for it',
+            'consoleReplay' => ' - my replay',
+            'hasErrors' => false,
+        ],
+        $this->renderer->render('MyApp', 'props', 1, null, false));
     }
 
     /**
@@ -68,7 +73,12 @@ class PhpExecJsReactRendererTest extends TestCase
      */
     public function testWithStoreData()
     {
-        $this->assertEquals('go for it - my replay', $this->renderer->render('MyApp', 'props', 1, array('Store' => '{foo:"bar"'), false));
+        $this->assertEquals([
+            'evaluated' => 'go for it',
+            'consoleReplay' => ' - my replay',
+            'hasErrors' => false,
+        ],
+        $this->renderer->render('MyApp', 'props', 1, array('Store' => '{foo:"bar"'), false));
     }
 
     /**
@@ -85,11 +95,17 @@ class PhpExecJsReactRendererTest extends TestCase
             ->willReturn(['someContext' => 'provided']);
         $this->renderer = new PhpExecJsReactRenderer(__DIR__.'/Fixtures/server-bundle-react.js', false, $this->contextProvider);
 
-        $expected = '<h1 data-reactroot="" data-reactid="1" data-react-checksum="-605941478">It Works!</h1>'."\n";
-        $expected .= '<script id="consoleReplayLog">'."\n";
-        $expected .= 'console.log.apply(console, ["[SERVER] RENDERED MyApp to dom node with id: 1 with props, railsContext:","{\"msg\":\"It Works!\"}","{\"someContext\":\"provided\"}"]);'."\n";
-        $expected .= '</script>';
-        $this->assertEquals($expected, $this->renderer->render('MyApp', '{msg:"It Works!"}', 1, null, true));
+        $expected = '<h1 data-reactroot="" data-reactid="1" data-react-checksum="-605941478">It Works!</h1>';
+        $replay = "\n".'<script id="consoleReplayLog">'."\n";
+        $replay .= 'console.log.apply(console, ["[SERVER] RENDERED MyApp to dom node with id: 1 with props, railsContext:","{\"msg\":\"It Works!\"}","{\"someContext\":\"provided\"}"]);'."\n";
+        $replay .= '</script>';
+
+        $this->assertEquals([
+            'evaluated' => $expected,
+            'consoleReplay' => $replay,
+            'hasErrors' => false,
+        ],
+        $this->renderer->render('MyApp', '{msg:"It Works!"}', 1, null, true));
     }
 
     /**
@@ -100,7 +116,7 @@ class PhpExecJsReactRendererTest extends TestCase
         $phpExecJs = $this->getMockBuilder(PhpExecJs::class)
             ->getMock();
         $phpExecJs->method('evalJs')
-             ->willReturn('{ "html" : "go for it", "hasErrors" : true, "consoleReplayScript": " - my replay"}');
+            ->willReturn('{ "html" : "go for it", "hasErrors" : true, "consoleReplayScript": " - my replay"}');
         $this->renderer = new PhpExecJsReactRenderer(__DIR__.'/Fixtures/server-bundle.js', true, $this->contextProvider, $this->logger);
         $this->renderer->setPhpExecJs($phpExecJs);
         $this->renderer->render('MyApp', 'props', 1, null, true);
