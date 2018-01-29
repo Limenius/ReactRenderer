@@ -147,14 +147,14 @@ class ReactRenderExtension extends \Twig_Extension
         }
         $str .= '<div id="'.$data['dom_id'].'">';
         if ($this->shouldRenderServerSide($options)) {
-            $serverSideStr = $this->renderer->render(
+            $rendered = $this->renderer->render(
                 $data['component_name'],
                 json_encode($data['props']),
                 $data['dom_id'],
                 $this->registeredStores,
                 $data['trace']
             );
-            $str .= $serverSideStr;
+            $str .= $rendered['evaluated'].$rendered['consoleReplay'];
         }
         $str .= '</div>';
 
