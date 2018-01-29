@@ -102,8 +102,12 @@ class ReactRenderExtension extends \Twig_Extension
                 $this->registeredStores,
                 $data['trace']
             );
-            $evaluated = $rendered['evaluated'];
-            $str .= $evaluated['componentHtml'].$rendered['consoleReplay'];
+            if ($rendered['hasErrors']) {
+                $str .= $rendered['evaluated'].$rendered['consoleReplay'];
+            } else {
+                $evaluated = $rendered['evaluated'];
+                $str .= $evaluated['componentHtml'].$rendered['consoleReplay'];
+            }
         }
         $str .= '</div>';
 

@@ -250,6 +250,39 @@ Make sure you use the same identifier here (`MySharedReduxStore`) as you used in
 
 You have an example in the [Sandbox](https://github.com/Limenius/symfony-react-sandbox).
 
+## Generator Functions
+
+Instead of returning a component, you may choose to return an object from your JavaScript code.
+
+One use case for this is to render Title or other meta tags in Server Side Rendering with [React Helmet](https://github.com/nfl/react-helmet). You may want to return the generated HTML of the component along with the title.
+
+```js 
+export default (initialProps, context) => {
+    const renderedHtml = {
+      componentHtml: renderToString(
+        <MyApp/>
+      ),
+      title: Helmet.renderStatic().title.toString()
+    };
+    return { renderedHtml };
+}
+```
+
+In these cases, the primary HTML code that is going to be rendered must be in the key `componentHtml`. You can access the resulting array in Twig:
+
+
+```twig
+{% set recipes = react_component_array('RecipesApp', {'props': props}) %}
+{% block title %}
+  {{ recipes.title is defined ? recipes.title | raw : '' }}
+{% endblock title %}
+
+{% block body %}
+  {{ recipes.componentHtml | raw }}
+{% endblock %}
+```
+
+There is an example of this in the sandbox.
 
 ## License
 
