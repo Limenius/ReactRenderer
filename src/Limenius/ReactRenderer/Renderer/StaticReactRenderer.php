@@ -23,6 +23,10 @@ class StaticReactRenderer extends AbstractReactRenderer
 
     public function render($componentName, $propsString, $uuid, $registeredStores = array(), $trace)
     {
+        if ($this->cache === null) {
+            return $this->renderer->render($componentName, $propsString, $uuid, $registeredStores, $trace);
+        }
+
         $cacheItem = $this->cache->getItem($componentName . '.rendered');
         if ($cacheItem->isHit()) {
             return $cacheItem->get();
