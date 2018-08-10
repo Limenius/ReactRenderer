@@ -193,19 +193,19 @@ This library supports two modes of using server-side rendering:
 
 * Using an external node.js server ([Example](https://github.com/Limenius/symfony-react-sandbox/tree/master/app/Resources/node-server/server.js)). It will use a dummy server, that knows nothing about your logic to render React for you. Introduces more operational complexity (you have to keep the node server running).
 
-Currently, the best option is to have [V8rjs](https://github.com/phpv8/v8js), and enablign Cache in production, as we will see in the next section.
+Currently, the best option is to have [V8rjs](https://github.com/phpv8/v8js), and enabling Cache in production, as we will see in the next section.
 
 ### Cache
 
 if in your config.prod.yaml or `config/packages/prod/limenius_react.yaml` you add the following configuration, and you have V8js installed, this bundle will be much faster:
-
+```yaml
 limenius_react:
     serverside_rendering:
         cache:
             enabled: true
             # name of your app, it is the key of the cache where the snapshot will be stored.
             key: "recipes_app"
-
+```
 After the first page render, this will store a snapshot of the JS virtual machine V8js in the cache, so in subsequent visits, your whole JavaScript app doesn't need to be processed again, just the particular component that you want to render.
 
 With the cache enabled, if you change code of your JS app, you will need to clear the cache.
