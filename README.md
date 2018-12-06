@@ -110,12 +110,12 @@ public function homeAction(Request $request)
 }
 ```
 
-If you set the last parameter of `react_component` to `true` instead of `false` the context and `props` are not directly included in the template. All these data is buffered and can be outputted right before the closing body tag with:
+If you set the last parameter of `react_component` to `true` instead of `false` the context and `props` are not immediately included in the template. All this data is buffered and can be inserted right before the closing body tag with:
 
 ```twig
 {{ react_flush_buffer() }}
 ```
-This is recommendet if you have a lot of `props` and don't want to include them in the first parts of your HTML response see
+This is recommend if you have a lot of `props` and don't want to include them in the first parts of your HTML response. See
  
  https://developers.google.com/speed/docs/insights/PrioritizeVisibleContent
 
@@ -200,9 +200,9 @@ This library supports two modes of using server-side rendering:
 
 * Using [PhpExecJs](https://github.com/nacmartin/phpexecjs) to auto-detect a JavaScript environment (call node.js via terminal command or use V8Js PHP) and run JavaScript code through it.
 
-* Using an external node.js server ([Example](https://github.com/Limenius/ReactRenderer/blob/master/doc/external-renderer.js). It will use a dummy server, that knows nothing about your logic to render React for you. Introduces more operational complexity (you have to keep the node server running).
+* Using an external node.js server ([Example](https://github.com/Limenius/ReactRenderer/blob/master/doc/external-renderer.js). It will use a dummy server, that knows nothing about your logic to render React for you. Introduces more operational complexity (you have to keep the node server running, which is not a big deal anyways).
 
-Currently, the best option is to use an external server in production, since having [V8rjs](https://github.com/phpv8/v8js) is rather hard to compile. However, if you can compile it or your distribution/OS has good packages, it is a very good optionif you enable caching, as we will see in the next section.
+Currently, the best option is to use an external server in production, since having [V8js](https://github.com/phpv8/v8js) is rather hard to compile. However, if you can compile it or your distribution/OS has good packages, it is a very good option if you enable caching, as we will see in the next section.
 
 ### Cache
 
