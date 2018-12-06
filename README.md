@@ -89,7 +89,7 @@ This library provides currently two renderers:
 Now you can insert React components in your Twig templates with:
 
 ```twig
-{{ react_component('RecipesApp', {'props': props}) }}
+{{ react_component('RecipesApp', {'props': props}, false) }}
 ```
 
 Where `RecipesApp` is, in this case, the name of our component, and `props` are the props for your component. Props can either be a JSON encoded string or an array. 
@@ -109,6 +109,15 @@ public function homeAction(Request $request)
     ]);
 }
 ```
+
+If you set the last parameter of `react_component` to `true` instead of `false` the context and `props` are not immediately included in the template. All this data is buffered and can be inserted right before the closing body tag with:
+
+```twig
+{{ react_flush_buffer() }}
+```
+This is recommend if you have a lot of `props` and don't want to include them in the first parts of your HTML response. See
+ 
+ https://developers.google.com/speed/docs/insights/PrioritizeVisibleContent
 
 ### Server-side, client-side or both?
 
@@ -191,21 +200,21 @@ This library supports two modes of using server-side rendering:
 
 * Using [PhpExecJs](https://github.com/nacmartin/phpexecjs) to auto-detect a JavaScript environment (call node.js via terminal command or use V8Js PHP) and run JavaScript code through it.
 
-* Using an external node.js server ([Example](https://github.com/Limenius/symfony-react-sandbox/tree/master/app/Resources/node-server/server.js)). It will use a dummy server, that knows nothing about your logic to render React for you. Introduces more operational complexity (you have to keep the node server running).
+* Using an external node.js server ([Example](https://github.com/Limenius/symfony-react-sandbox/blob/master/external-server.js). It will use a dummy server, that knows nothing about your logic to render React for you. Introduces more operational complexity (you have to keep the node server running, which is not a big deal anyways).
 
-Currently, the best option is to have [V8rjs](https://github.com/phpv8/v8js), and enablign Cache in production, as we will see in the next section.
+Currently, the best option is to use an external server in production, since having [V8js](https://github.com/phpv8/v8js) is rather hard to compile. However, if you can compile it or your distribution/OS has good packages, it is a very good option if you enable caching, as we will see in the next section.
 
 ### Cache
 
 if in your config.prod.yaml or `config/packages/prod/limenius_react.yaml` you add the following configuration, and you have V8js installed, this bundle will be much faster:
-
+```yaml
 limenius_react:
     serverside_rendering:
         cache:
             enabled: true
             # name of your app, it is the key of the cache where the snapshot will be stored.
             key: "recipes_app"
-
+```
 After the first page render, this will store a snapshot of the JS virtual machine V8js in the cache, so in subsequent visits, your whole JavaScript app doesn't need to be processed again, just the particular component that you want to render.
 
 With the cache enabled, if you change code of your JS app, you will need to clear the cache.

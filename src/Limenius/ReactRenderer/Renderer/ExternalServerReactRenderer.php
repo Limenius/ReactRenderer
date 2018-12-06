@@ -59,7 +59,9 @@ class ExternalServerReactRenderer extends AbstractReactRenderer
             $this->serverSocketPath = 'unix://'.$this->serverSocketPath;
         }
 
-        $sock = stream_socket_client($this->serverSocketPath, $errno, $errstr);
+        if (!$sock = stream_socket_client($this->serverSocketPath, $errno, $errstr)) {
+            throw new \RuntimeException($errstr);
+        }
         stream_socket_sendto($sock, $this->wrap($componentName, $propsString, $uuid, $registeredStores, $trace)."\0");
 
         $contents = '';
