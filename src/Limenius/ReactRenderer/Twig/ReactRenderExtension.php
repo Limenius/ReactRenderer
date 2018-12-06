@@ -18,6 +18,7 @@ class ReactRenderExtension extends \Twig_Extension
     private $renderer;
     private $contextProvider;
     private $trace;
+    private $buffer;
 
     /**
      * Constructor
@@ -34,6 +35,7 @@ class ReactRenderExtension extends \Twig_Extension
         $this->renderer = $renderer;
         $this->contextProvider = $contextProvider;
         $this->trace = $trace;
+        $this->buffer = array();
 
         switch ($defaultRendering) {
             case 'server_side':
@@ -60,16 +62,18 @@ class ReactRenderExtension extends \Twig_Extension
             new \Twig_SimpleFunction('react_component', array($this, 'reactRenderComponent'), array('is_safe' => array('html'))),
             new \Twig_SimpleFunction('react_component_array', array($this, 'reactRenderComponentArray'), array('is_safe' => array('html'))),
             new \Twig_SimpleFunction('redux_store', array($this, 'reactReduxStore'), array('is_safe' => array('html'))),
+            new \Twig_SimpleFunction('react_flush_buffer', array($this, 'reactFlushBuffer'), array('is_safe' => array('html'))),
         );
     }
 
     /**
      * @param string $componentName
      * @param array  $options
+     * @param bool   $bufferData
      *
      * @return string
      */
-    public function reactRenderComponentArray($componentName, array $options = array())
+    public function reactRenderComponentArray($componentName, array $options = array(), $bufferData = false)
     {
         $props = isset($options['props']) ? $options['props'] : array();
         $propsArray = is_array($props) ? $props : json_decode($props);
@@ -84,13 +88,18 @@ class ReactRenderExtension extends \Twig_Extension
 
 
         if ($this->shouldRenderClientSide($options)) {
-            $str .= $this->renderContext();
-            $str .=  sprintf(
+            $tmpData = $this->renderContext();
+            $tmpData .=  sprintf(
                 '<script type="application/json" class="js-react-on-rails-component" data-component-name="%s" data-dom-id="%s">%s</script>',
                 $data['component_name'],
                 $data['dom_id'],
                 json_encode($data['props'])
             );
+            if($bufferData === true) {
+                $this->buffer[] = $tmpData;
+            } else {
+                $str .= $tmpData;
+            }
         }
         $str .= '<div id="'.$data['dom_id'].'">';
 
@@ -119,10 +128,11 @@ class ReactRenderExtension extends \Twig_Extension
     /**
      * @param string $componentName
      * @param array  $options
+     * @param bool   $bufferData
      *
      * @return string
      */
-    public function reactRenderComponent($componentName, array $options = array())
+    public function reactRenderComponent($componentName, array $options = array(), $bufferData = false)
     {
         $props = isset($options['props']) ? $options['props'] : array();
         $propsArray = is_array($props) ? $props : json_decode($props);
@@ -137,13 +147,18 @@ class ReactRenderExtension extends \Twig_Extension
 
 
         if ($this->shouldRenderClientSide($options)) {
-            $str .= $this->renderContext();
-            $str .=  sprintf(
+            $tmpData = $this->renderContext();
+            $tmpData .= sprintf(
                 '<script type="application/json" class="js-react-on-rails-component" data-component-name="%s" data-dom-id="%s">%s</script>',
                 $data['component_name'],
                 $data['dom_id'],
                 json_encode($data['props'])
             );
+            if($bufferData === true) {
+                $this->buffer[] = $tmpData;
+            } else {
+                $str .= $tmpData;
+            }
         }
         $str .= '<div id="'.$data['dom_id'].'">';
         if ($this->shouldRenderServerSide($options)) {
@@ -180,6 +195,22 @@ class ReactRenderExtension extends \Twig_Extension
         );
 
         return $this->renderContext().$reduxStoreTag;
+    }
+
+    /**
+     * @return string
+     */
+    public function reactFlushBuffer()
+    {
+        $str = '';
+
+        foreach ($this->buffer as $item) {
+            $str .= $item;
+        }
+
+        $this->buffer = array();
+
+        return $str;
     }
 
     /**

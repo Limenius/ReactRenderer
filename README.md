@@ -89,7 +89,7 @@ This library provides currently two renderers:
 Now you can insert React components in your Twig templates with:
 
 ```twig
-{{ react_component('RecipesApp', {'props': props}) }}
+{{ react_component('RecipesApp', {'props': props}, false) }}
 ```
 
 Where `RecipesApp` is, in this case, the name of our component, and `props` are the props for your component. Props can either be a JSON encoded string or an array. 
@@ -109,6 +109,15 @@ public function homeAction(Request $request)
     ]);
 }
 ```
+
+If you set the last parameter of `react_component` to `true` instead of `false` the context and `props` are not directly included in the template. All these data is buffered and can be outputted right before the closing body tag with:
+
+```twig
+{{ react_flush_buffer() }}
+```
+This is recommendet if you have a lot of `props` and don't want to include them in the first parts of your HTML response see
+ 
+ https://developers.google.com/speed/docs/insights/PrioritizeVisibleContent
 
 ### Server-side, client-side or both?
 
