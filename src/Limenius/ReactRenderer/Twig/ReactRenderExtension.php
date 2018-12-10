@@ -4,7 +4,6 @@ namespace Limenius\ReactRenderer\Twig;
 
 use Limenius\ReactRenderer\Renderer\AbstractReactRenderer;
 use Limenius\ReactRenderer\Context\ContextProviderInterface;
-use Limenius\ReactRenderer\Renderer\StaticReactRenderer;
 
 /**
  * Class ReactRenderExtension
@@ -17,7 +16,6 @@ class ReactRenderExtension extends \Twig_Extension
     protected $needsToSetRailsContext = true;
 
     private $renderer;
-    private $staticRenderer;
     private $contextProvider;
     private $trace;
     private $buffer;
@@ -32,10 +30,8 @@ class ReactRenderExtension extends \Twig_Extension
      *
      * @return ReactRenderExtension
      */
-    public function __construct(AbstractReactRenderer $renderer = null, StaticReactRenderer $staticRenderer, ContextProviderInterface $contextProvider, $defaultRendering, $trace = false)
+    public function __construct(AbstractReactRenderer $renderer = null, ContextProviderInterface $contextProvider, $defaultRendering, $trace = false)
     {
-        $staticRenderer->setRenderer($renderer);
-        $this->staticRenderer = $staticRenderer;
         $this->renderer = $renderer;
         $this->contextProvider = $contextProvider;
         $this->trace = $trace;
@@ -66,8 +62,6 @@ class ReactRenderExtension extends \Twig_Extension
             new \Twig_SimpleFunction('react_component', array($this, 'reactRenderComponent'), array('is_safe' => array('html'))),
             new \Twig_SimpleFunction('react_component_array', array($this, 'reactRenderComponentArray'), array('is_safe' => array('html'))),
             new \Twig_SimpleFunction('redux_store', array($this, 'reactReduxStore'), array('is_safe' => array('html'))),
-            new \Twig_SimpleFunction('react_component_static', array($this, 'reactRenderComponentStatic'), array('is_safe' => array('html'))),
-            new \Twig_SimpleFunction('react_component_array_static', array($this, 'reactRenderComponentArrayStatic'), array('is_safe' => array('html'))),
             new \Twig_SimpleFunction('react_flush_buffer', array($this, 'reactFlushBuffer'), array('is_safe' => array('html'))),
 
         );
@@ -133,23 +127,6 @@ class ReactRenderExtension extends \Twig_Extension
     }
 
     /**
-     * @param $componentName
-     * @param array $options
-     *
-     * @return string
-     */
-    public function reactRenderComponentArrayStatic($componentName, array $options = array())
-    {
-        $renderer = $this->renderer;
-        $this->renderer = $this->staticRenderer;
-
-        $rendered = $this->reactRenderComponentArray($componentName, $options);
-        $this->renderer = $renderer;
-
-        return $rendered;
-    }
-
-    /**
      * @param string $componentName
      * @param array  $options
      * @param bool   $bufferData
@@ -197,23 +174,6 @@ class ReactRenderExtension extends \Twig_Extension
         }
         $str .= '</div>';
         return $str;
-    }
-
-    /**
-     * @param string $componentName
-     * @param array  $options
-     *
-     * @return string
-     */
-    public function reactRenderComponentStatic($componentName, array $options = array())
-    {
-        $renderer = $this->renderer;
-        $this->renderer = $this->staticRenderer;
-
-        $rendered = $this->reactRenderComponent($componentName, $options);
-        $this->renderer = $renderer;
-
-        return $rendered;
     }
 
     /**
