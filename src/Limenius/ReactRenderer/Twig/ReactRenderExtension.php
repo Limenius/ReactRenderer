@@ -330,7 +330,7 @@ class ReactRenderExtension extends \Twig_Extension
     {
         $json = json_encode($input);
 
-        if (json_last_error() !== null) {
+        if (json_last_error() !== 0) {
             throw new \Limenius\ReactRenderer\Exception\PropsEncodeException(
                 sprintf(
                     'JSON could not be encoded, Error Message was %s',
@@ -346,7 +346,7 @@ class ReactRenderExtension extends \Twig_Extension
     {
         $json = json_decode($input);
 
-        if (json_last_error() !== null) {
+        if (json_last_error() !== 0) {
             throw new \Limenius\ReactRenderer\Exception\PropsDecodeException(
                 sprintf(
                     'JSON could not be decoded, Error Message was %s',
