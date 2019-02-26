@@ -2,10 +2,11 @@
 
 namespace Limenius\ReactRenderer\Renderer;
 
-use Nacmartin\PhpExecJs\PhpExecJs;
-use Psr\Log\LoggerInterface;
 use Limenius\ReactRenderer\Context\ContextProviderInterface;
+use Nacmartin\PhpExecJs\PhpExecJs;
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 
 /**
  * Class PhpExecJsReactRenderer
@@ -93,15 +94,38 @@ class PhpExecJsReactRenderer extends AbstractReactRenderer
      */
     public function render($componentName, $propsString, $uuid, $registeredStores = array(), $trace)
     {
-        $this->ensurePhpExecJsIsBuilt();
-        if ($this->needToSetContext) {
-            if ($this->phpExecJs->supportsCache()) {
-                $this->phpExecJs->setCache($this->cache);
+        try {
+            $this->ensurePhpExecJsIsBuilt();
+            if ($this->needToSetContext) {
+                if ($this->phpExecJs->supportsCache()) {
+                    $this->phpExecJs->setCache($this->cache);
+                }
+                $this->phpExecJs->createContext(
+                    $this->consolePolyfill()."\n".$this->timerPolyfills($trace)."\n".$this->loadServerBundle(),
+                    $this->cacheKey
+                );
+                $this->needToSetContext = false;
             }
-            $this->phpExecJs->createContext($this->consolePolyfill()."\n".$this->timerPolyfills($trace)."\n".$this->loadServerBundle(), $this->cacheKey);
-            $this->needToSetContext = false;
+            $result = \json_decode(
+                $this->phpExecJs->evalJs($this->wrap($componentName, $propsString, $uuid, $registeredStores, $trace)),
+                true
+            );
+        } catch (\Throwable $t) {
+            if ($this->failLoud) {
+                throw $t;
+            }
+
+            if ($this->logger) {
+                $this->logger->log(LogLevel::ERROR, $t->getMessage(), ['exception' => $t]);
+            }
+
+            return [
+                'evaluated'     => '',
+                'consoleReplay' => '',
+                'hasErrors'     => true,
+            ];
         }
-        $result = json_decode($this->phpExecJs->evalJs($this->wrap($componentName, $propsString, $uuid, $registeredStores, $trace)), true);
+
         if ($result['hasErrors']) {
             $this->logErrors($result['consoleReplayScript']);
             if ($this->failLoud) {
