@@ -34,6 +34,9 @@ class ReactRenderExtension extends \Twig_Extension
      */
     public function __construct(AbstractReactRenderer $renderer = null, StaticReactRenderer $staticRenderer, ContextProviderInterface $contextProvider, $defaultRendering, $trace = false)
     {
+        if($renderer === null) {
+            $renderer = new StaticReactRenderer();
+        }
         $staticRenderer->setRenderer($renderer);
         $this->staticRenderer = $staticRenderer;
         $this->renderer = $renderer;
