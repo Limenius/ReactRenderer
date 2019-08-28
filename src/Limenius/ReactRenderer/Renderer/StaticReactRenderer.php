@@ -16,7 +16,7 @@ class StaticReactRenderer extends AbstractReactRenderer
         $this->cacheKey = $cacheKey;
     }
 
-    public function setRenderer(AbstractReactRenderer $renderer)
+    public function setRenderer(AbstractReactRenderer $renderer = null)
     {
         $this->renderer = $renderer;
     }
