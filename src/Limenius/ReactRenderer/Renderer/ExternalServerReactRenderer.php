@@ -34,6 +34,10 @@ class ExternalServerReactRenderer extends AbstractReactRenderer
         $this->failLoud = $failLoud;
         $this->logger = $logger;
         $this->contextProvider = $contextProvider;
+
+        if (!\extension_loaded('sockets')) {
+            throw new \RuntimeException(\sprintf('Please enable ext-sockets before using %s', __CLASS__));
+        }
     }
 
     /**

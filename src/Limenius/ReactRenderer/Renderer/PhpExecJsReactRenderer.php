@@ -57,6 +57,10 @@ class PhpExecJsReactRenderer extends AbstractReactRenderer
         $this->failLoud = $failLoud;
         $this->logger = $logger;
         $this->contextProvider = $contextProvider;
+
+        if (!\class_exists('\Nacmartin\PhpExecJs\PhpExecJs')) {
+            throw new \RuntimeException(\sprintf('Please install nacmartin/phpexecjs before using %s', __CLASS__));
+        }
     }
 
     public function setCache(CacheItemPoolInterface $cache, $cacheKey)
