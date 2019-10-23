@@ -2,13 +2,10 @@
 
 namespace Limenius\ReactRenderer\Twig;
 
+use Psr\Cache\CacheItemPoolInterface;
 use Limenius\ReactRenderer\Renderer\AbstractReactRenderer;
 use Limenius\ReactRenderer\Context\ContextProviderInterface;
-use Limenius\ReactRenderer\Renderer\StaticReactRenderer;
 
-/**
- * Class ReactRenderExtension
- */
 class ReactRenderExtension extends \Twig_Extension
 {
     protected $renderServerSide = false;
@@ -21,21 +18,10 @@ class ReactRenderExtension extends \Twig_Extension
     private $contextProvider;
     private $trace;
     private $buffer;
+    private $cache;
 
-    /**
-     * Constructor
-     *
-     * @param AbstractReactRenderer    $renderer
-     * @param ContextProviderInterface $contextProvider
-     * @param string                   $defaultRendering
-     * @param boolean                  $trace
-     *
-     * @return ReactRenderExtension
-     */
-    public function __construct(AbstractReactRenderer $renderer = null, StaticReactRenderer $staticRenderer, ContextProviderInterface $contextProvider, $defaultRendering, $trace = false)
+    public function __construct(AbstractReactRenderer $renderer = null, ContextProviderInterface $contextProvider, string $defaultRendering, bool $trace = false)
     {
-        $staticRenderer->setRenderer($renderer);
-        $this->staticRenderer = $staticRenderer;
         $this->renderer = $renderer;
         $this->contextProvider = $contextProvider;
         $this->trace = $trace;
@@ -57,30 +43,22 @@ class ReactRenderExtension extends \Twig_Extension
         }
     }
 
-    /**
-     * @return array
-     */
-    public function getFunctions()
+    public function setCache(CacheItemPoolInterface $cache)
+    {
+        $this->cache = $cache;
+    }
+
+    public function getFunctions(): array
     {
         return array(
             new \Twig_SimpleFunction('react_component', array($this, 'reactRenderComponent'), array('is_safe' => array('html'))),
             new \Twig_SimpleFunction('react_component_array', array($this, 'reactRenderComponentArray'), array('is_safe' => array('html'))),
             new \Twig_SimpleFunction('redux_store', array($this, 'reactReduxStore'), array('is_safe' => array('html'))),
-            new \Twig_SimpleFunction('react_component_static', array($this, 'reactRenderComponentStatic'), array('is_safe' => array('html'))),
-            new \Twig_SimpleFunction('react_component_array_static', array($this, 'reactRenderComponentArrayStatic'), array('is_safe' => array('html'))),
             new \Twig_SimpleFunction('react_flush_buffer', array($this, 'reactFlushBuffer'), array('is_safe' => array('html'))),
-
         );
     }
 
-    /**
-     * @param string $componentName
-     * @param array  $options
-     * @param bool   $bufferData
-     *
-     * @return string
-     */
-    public function reactRenderComponentArray($componentName, array $options = array(), $bufferData = false)
+    public function reactRenderComponentArray(string $componentName, array $options = array()): string
     {
         $props = isset($options['props']) ? $options['props'] : array();
         $propsArray = is_array($props) ? $props : $this->jsonDecode($props);
@@ -93,16 +71,15 @@ class ReactRenderExtension extends \Twig_Extension
             'trace' => $this->shouldTrace($options),
         );
 
-
         if ($this->shouldRenderClientSide($options)) {
             $tmpData = $this->renderContext();
-            $tmpData .=  sprintf(
+            $tmpData .= sprintf(
                 '<script type="application/json" class="js-react-on-rails-component" data-component-name="%s" data-dom-id="%s">%s</script>',
                 $data['component_name'],
                 $data['dom_id'],
                 $this->jsonEncode($data['props'])
             );
-            if($bufferData === true) {
+            if ($this->shouldBuffer() === true) {
                 $this->buffer[] = $tmpData;
             } else {
                 $str .= $tmpData;
@@ -111,13 +88,7 @@ class ReactRenderExtension extends \Twig_Extension
         $str .= '<div id="'.$data['dom_id'].'">';
 
         if ($this->shouldRenderServerSide($options)) {
-            $rendered = $this->renderer->render(
-                $data['component_name'],
-                $this->jsonEncode($data['props']),
-                $data['dom_id'],
-                $this->registeredStores,
-                $data['trace']
-            );
+            $rendered = $this->serverSideRender($data, $options);
             if ($rendered['hasErrors']) {
                 $str .= $rendered['evaluated'].$rendered['consoleReplay'];
             } else {
@@ -132,13 +103,7 @@ class ReactRenderExtension extends \Twig_Extension
         return $evaluated;
     }
 
-    /**
-     * @param $componentName
-     * @param array $options
-     *
-     * @return string
-     */
-    public function reactRenderComponentArrayStatic($componentName, array $options = array())
+    public function reactRenderComponentArrayStatic(string $componentName, array $options = array()): string
     {
         $renderer = $this->renderer;
         $this->renderer = $this->staticRenderer;
@@ -149,14 +114,7 @@ class ReactRenderExtension extends \Twig_Extension
         return $rendered;
     }
 
-    /**
-     * @param string $componentName
-     * @param array  $options
-     * @param bool   $bufferData
-     *
-     * @return string
-     */
-    public function reactRenderComponent($componentName, array $options = array(), $bufferData = false)
+    public function reactRenderComponent(string $componentName, array $options = array()): string
     {
         $props = isset($options['props']) ? $options['props'] : array();
         $propsArray = is_array($props) ? $props : $this->jsonDecode($props);
@@ -169,7 +127,6 @@ class ReactRenderExtension extends \Twig_Extension
             'trace' => $this->shouldTrace($options),
         );
 
-
         if ($this->shouldRenderClientSide($options)) {
             $tmpData = $this->renderContext();
             $tmpData .= sprintf(
@@ -178,7 +135,7 @@ class ReactRenderExtension extends \Twig_Extension
                 $data['dom_id'],
                 $this->jsonEncode($data['props'])
             );
-            if($bufferData === true) {
+            if ($this->shouldBuffer($options) === true) {
                 $this->buffer[] = $tmpData;
             } else {
                 $str .= $tmpData;
@@ -186,26 +143,16 @@ class ReactRenderExtension extends \Twig_Extension
         }
         $str .= '<div id="'.$data['dom_id'].'">';
         if ($this->shouldRenderServerSide($options)) {
-            $rendered = $this->renderer->render(
-                $data['component_name'],
-                $this->jsonEncode($data['props']),
-                $data['dom_id'],
-                $this->registeredStores,
-                $data['trace']
-            );
+            $rendered = $this->serverSideRender($data, $options);
+            $evaluated = $rendered['evaluated'];
             $str .= $rendered['evaluated'].$rendered['consoleReplay'];
         }
         $str .= '</div>';
+
         return $str;
     }
 
-    /**
-     * @param string $componentName
-     * @param array  $options
-     *
-     * @return string
-     */
-    public function reactRenderComponentStatic($componentName, array $options = array())
+    public function reactRenderComponentStatic(string $componentName, array $options = array()): string
     {
         $renderer = $this->renderer;
         $this->renderer = $this->staticRenderer;
@@ -216,17 +163,10 @@ class ReactRenderExtension extends \Twig_Extension
         return $rendered;
     }
 
-    /**
-     * @param string $storeName
-     * @param array  $props
-     *
-     * @return string
-     */
-    public function reactReduxStore($storeName, $props)
+    public function reactReduxStore(string $storeName, $props): string
     {
         $propsString = is_array($props) ? $this->jsonEncode($props) : $props;
         $this->registeredStores[$storeName] = $propsString;
-
 
         $reduxStoreTag = sprintf(
             '<script type="application/json" data-js-react-on-rails-store="%s">%s</script>',
@@ -237,10 +177,7 @@ class ReactRenderExtension extends \Twig_Extension
         return $this->renderContext().$reduxStoreTag;
     }
 
-    /**
-     * @return string
-     */
-    public function reactFlushBuffer()
+    public function reactFlushBuffer(): string
     {
         $str = '';
 
@@ -253,12 +190,7 @@ class ReactRenderExtension extends \Twig_Extension
         return $str;
     }
 
-    /**
-     * @param array $options
-     *
-     * @return bool
-     */
-    public function shouldRenderServerSide($options)
+    public function shouldRenderServerSide(array $options): bool
     {
         if (isset($options['rendering'])) {
             if (in_array($options['rendering'], ['server_side', 'both'], true)) {
@@ -271,12 +203,7 @@ class ReactRenderExtension extends \Twig_Extension
         return $this->renderServerSide;
     }
 
-    /**
-     * @param array $options
-     *
-     * @return bool
-     */
-    public function shouldRenderClientSide($options)
+    public function shouldRenderClientSide(array $options): string
     {
         if (isset($options['rendering'])) {
             if (in_array($options['rendering'], ['client_side', 'both'], true)) {
@@ -289,30 +216,17 @@ class ReactRenderExtension extends \Twig_Extension
         return $this->renderClientSide;
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): string
     {
         return 'react_render_extension';
     }
 
-    /**
-     * @param array $options
-     *
-     * @return bool
-     */
-    protected function shouldTrace($options)
+    protected function shouldTrace(array $options): bool
     {
-        return (isset($options['trace']) ? $options['trace'] : $this->trace);
+        return isset($options['trace']) ? $options['trace'] : $this->trace;
     }
 
-    /**
-     * renderContext
-     *
-     * @return string a html script tag with the context
-     */
-    protected function renderContext()
+    private function renderContext(): string
     {
         if ($this->needsToSetRailsContext) {
             $this->needsToSetRailsContext = false;
@@ -326,7 +240,7 @@ class ReactRenderExtension extends \Twig_Extension
         return '';
     }
 
-    protected function jsonEncode($input)
+    private function jsonEncode($input): string
     {
         $json = json_encode($input);
 
@@ -342,7 +256,7 @@ class ReactRenderExtension extends \Twig_Extension
         return $json;
     }
 
-    protected function jsonDecode($input)
+    private function jsonDecode($input): array
     {
         $json = json_decode($input);
 
@@ -356,5 +270,59 @@ class ReactRenderExtension extends \Twig_Extension
         }
 
         return $json;
+    }
+
+    private function serverSideRender(array $data, array $options): array
+    {
+        if ($this->shouldCache($options)) {
+            return $this->renderCached($data, $options);
+        } else {
+            return $this->doServerSideRender($data);
+        }
+    }
+
+    private function doServerSideRender($data): array
+    {
+        return $this->renderer->render(
+            $data['component_name'],
+            json_encode($data['props']),
+            $data['dom_id'],
+            $this->registeredStores,
+            $data['trace']
+        );
+    }
+
+    private function renderCached($data, $options): array
+    {
+        if ($this->cache === null) {
+            return $this->doServerSideRender($data);
+        }
+
+        $cacheItem = $this->cache->getItem($data['component_name'].$this->getCacheKey($options, $data));
+        if ($cacheItem->isHit()) {
+            return $cacheItem->get();
+        }
+
+        $rendered = $this->doServerSideRender($data);
+
+        $cacheItem->set($rendered);
+        $this->cache->save($cacheItem);
+
+        return $rendered;
+    }
+
+    private function getCacheKey($options, $data): string
+    {
+        return isset($options['cache_key']) && $options['cache_key'] ? $options['cache_key'] : $data['component_name'].'.rendered';
+    }
+
+    private function shouldCache($options): bool
+    {
+        return isset($options['cached']) && $options['cached'];
+    }
+
+    private function shouldBuffer($options): bool
+    {
+        return isset($options['buffered']) && $options['buffered'];
     }
 }

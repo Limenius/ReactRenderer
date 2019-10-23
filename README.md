@@ -8,11 +8,11 @@ If you wish to use it with Silex, check out @teameh [Silex React Renderer Servic
 
 Features include:
 
-* Prerender server-side React components for SEO, faster page loading, for users that have disabled JavaScript, or for Progressive Web Applications.
-* Twig integration.
-* Client-side render will take the server-side rendered DOM, recognize it, and take control over it without rendering again the component until needed.
-* Error and debug management for server and client side code.
-* Simple integration with Webpack.
+- Prerender server-side React components for SEO, faster page loading, for users that have disabled JavaScript, or for Progressive Web Applications.
+- Twig integration.
+- Client-side render will take the server-side rendered DOM, recognize it, and take control over it without rendering again the component until needed.
+- Error and debug management for server and client side code.
+- Simple integration with Webpack.
 
 [![Build Status](https://travis-ci.org/Limenius/ReactRenderer.svg?branch=master)](https://travis-ci.org/Limenius/ReactRenderer)
 [![Latest Stable Version](https://poser.pugx.org/limenius/react-renderer/v/stable)](https://packagist.org/packages/limenius/react-renderer)
@@ -44,8 +44,8 @@ In order to use React components you need to register them in your JavaScript. T
 Your code exposing a React component would look like this:
 
 ```js
-import ReactOnRails from 'react-on-rails';
-import RecipesApp from './RecipesAppServer';
+import ReactOnRails from "react-on-rails";
+import RecipesApp from "./RecipesAppServer";
 
 ReactOnRails.register({ RecipesApp });
 ```
@@ -77,22 +77,22 @@ $twig->addExtension(new Twig_Extension_StringLoader());
 $twig->addExtension($ext);
 ```
 
-`ReactRenderExtension` needs as arguments a *renderer* and a string that defines if we are rendering our React components `client_side`, `render_side` or `both`.
+`ReactRenderExtension` needs as arguments a _renderer_ and a string that defines if we are rendering our React components `client_side`, `render_side` or `both`.
 
 The renderer is one of the renders that inherit from [`AbstractReactRenderer`](ReactRenderer/src/Limenius/ReactRenderer/Renderer/AbstractReactRenderer.php).
 
 This library provides currently two renderers:
 
-* `PhpExecJsReactRenderer`: that uses internally [phpexecjs](https://github.com/nacmartin/phpexecjs) to autodetect the best javascript runtime available.
-* `ExternalServerReactRenderer`: that relies on a external nodeJs server.
+- `PhpExecJsReactRenderer`: that uses internally [phpexecjs](https://github.com/nacmartin/phpexecjs) to autodetect the best javascript runtime available.
+- `ExternalServerReactRenderer`: that relies on a external nodeJs server.
 
 Now you can insert React components in your Twig templates with:
 
 ```twig
-{{ react_component('RecipesApp', {'props': props}, false) }}
+{{ react_component('RecipesApp', {'props': props}) }}
 ```
 
-Where `RecipesApp` is, in this case, the name of our component, and `props` are the props for your component. Props can either be a JSON encoded string or an array. 
+Where `RecipesApp` is, in this case, the name of our component, and `props` are the props for your component. Props can either be a JSON encoded string or an array.
 
 For instance, a controller action that will produce a valid props could be:
 
@@ -109,15 +109,6 @@ public function homeAction(Request $request)
     ]);
 }
 ```
-
-If you set the last parameter of `react_component` to `true` instead of `false` the context and `props` are not immediately included in the template. All this data is buffered and can be inserted right before the closing body tag with:
-
-```twig
-{{ react_flush_buffer() }}
-```
-This is recommend if you have a lot of `props` and don't want to include them in the first parts of your HTML response. See
- 
- https://developers.google.com/speed/docs/insights/PrioritizeVisibleContent
 
 ### Server-side, client-side or both?
 
@@ -157,7 +148,7 @@ To enable tracing, you can set a config parameter, as stated above, or you can s
 
 Note that in this case you will probably see a React warning like
 
-*"Warning: render(): Target node has markup rendered by React, but there are unrelated nodes as well. This is most commonly caused by white-space inserted around server-rendered markup."*
+_"Warning: render(): Target node has markup rendered by React, but there are unrelated nodes as well. This is most commonly caused by white-space inserted around server-rendered markup."_
 
 This warning is harmless and will go away when you disable trace in production. It means that when rendering the component client-side and comparing with the server-side equivalent, React has found extra characters. Those characters are your debug messages, so don't worry about it.
 
@@ -166,8 +157,7 @@ This warning is harmless and will go away when you disable trace in production. 
 This library will provide context about the current request to React components. Your components will receive two arguments on instantiation:
 
 ```js
-const App = (initialProps, context) => {
-}
+const App = (initialProps, context) => {};
 ```
 
 The Symfony context provider has this implementation:
@@ -198,26 +188,11 @@ So you can access these properties in your React components, to get information 
 
 This library supports two modes of using server-side rendering:
 
-* Using [PhpExecJs](https://github.com/nacmartin/phpexecjs) to auto-detect a JavaScript environment (call node.js via terminal command or use V8Js PHP) and run JavaScript code through it.
+- Using [PhpExecJs](https://github.com/nacmartin/phpexecjs) to auto-detect a JavaScript environment (call node.js via terminal command or use V8Js PHP) and run JavaScript code through it.
 
-* Using an external node.js server ([Example](https://github.com/Limenius/symfony-react-sandbox/blob/master/external-server.js). It will use a dummy server, that knows nothing about your logic to render React for you. Introduces more operational complexity (you have to keep the node server running, which is not a big deal anyways).
+- Using an external node.js server ([Example](https://github.com/Limenius/symfony-react-sandbox/blob/master/external-server.js). It will use a dummy server, that knows nothing about your logic to render React for you. Introduces more operational complexity (you have to keep the node server running, which is not a big deal anyways).
 
 Currently, the best option is to use an external server in production, since having [V8js](https://github.com/phpv8/v8js) is rather hard to compile. However, if you can compile it or your distribution/OS has good packages, it is a very good option if you enable caching, as we will see in the next section.
-
-### Cache
-
-if in your config.prod.yaml or `config/packages/prod/limenius_react.yaml` you add the following configuration, and you have V8js installed, this bundle will be much faster:
-```yaml
-limenius_react:
-    serverside_rendering:
-        cache:
-            enabled: true
-            # name of your app, it is the key of the cache where the snapshot will be stored.
-            key: "recipes_app"
-```
-After the first page render, this will store a snapshot of the JS virtual machine V8js in the cache, so in subsequent visits, your whole JavaScript app doesn't need to be processed again, just the particular component that you want to render.
-
-With the cache enabled, if you change code of your JS app, you will need to clear the cache.
 
 ### Redux
 
@@ -229,14 +204,15 @@ Use `redux_store` in your Twig file before you render your components depending 
 {{ redux_store('MySharedReduxStore', initialState ) }}
 {{ react_component('RecipesApp') }}
 ```
-`MySharedReduxStore` here is the identifier you're using in your javascript to get the store. The `initialState` can either be a JSON encoded string or an array. 
+
+`MySharedReduxStore` here is the identifier you're using in your javascript to get the store. The `initialState` can either be a JSON encoded string or an array.
 
 Then, expose your store in your bundle, just like your exposed your components:
 
 ```js
-import ReactOnRails from 'react-on-rails';
-import RecipesApp from './RecipesAppServer';
-import configureStore from './store/configureStore';
+import ReactOnRails from "react-on-rails";
+import RecipesApp from "./RecipesAppServer";
+import configureStore from "./store/configureStore";
 
 ReactOnRails.registerStore({ configureStore });
 ReactOnRails.register({ RecipesApp });
@@ -246,7 +222,7 @@ Finally use `ReactOnRails.getStore` where you would have used your the object yo
 
 ```js
 // Get hydrated store
-const store = ReactOnRails.getStore('MySharedReduxStore');
+const store = ReactOnRails.getStore("MySharedReduxStore");
 
 return (
   <Provider store={store}>
@@ -255,30 +231,27 @@ return (
 );
 ```
 
-Make sure you use the same identifier here (`MySharedReduxStore`) as you used in your Twig file to set up the store. 
+Make sure you use the same identifier here (`MySharedReduxStore`) as you used in your Twig file to set up the store.
 
 You have an example in the [Sandbox](https://github.com/Limenius/symfony-react-sandbox).
 
-## Generator Functions
+### Generator Functions
 
 Instead of returning a component, you may choose to return an object from your JavaScript code.
 
 One use case for this is to render Title or other meta tags in Server Side Rendering with [React Helmet](https://github.com/nfl/react-helmet). You may want to return the generated HTML of the component along with the title.
 
-```js 
+```js
 export default (initialProps, context) => {
-    const renderedHtml = {
-      componentHtml: renderToString(
-        <MyApp/>
-      ),
-      title: Helmet.renderStatic().title.toString()
-    };
-    return { renderedHtml };
-}
+  const renderedHtml = {
+    componentHtml: renderToString(<MyApp />),
+    title: Helmet.renderStatic().title.toString()
+  };
+  return { renderedHtml };
+};
 ```
 
 In these cases, the primary HTML code that is going to be rendered must be in the key `componentHtml`. You can access the resulting array in Twig:
-
 
 ```twig
 {% set recipes = react_component_array('RecipesApp', {'props': props}) %}
@@ -292,6 +265,67 @@ In these cases, the primary HTML code that is going to be rendered must be in th
 ```
 
 There is an example of this in the sandbox.
+
+### Buffering
+
+If you set pass `buffered: true` as an option of `react_component` the context and `props` are not immediately included in the template. All this data is buffered and can be inserted right before the closing body tag with `react_flush_buffer`:
+
+```twig
+{{ react_component('RecipesApp', {'props': props, 'buffered': true}) }}
+{{ react_flush_buffer() }}
+```
+
+This is recommend if you have a lot of `props` and don't want to include them in the first parts of your HTML response. See
+
+https://developers.google.com/speed/docs/insights/PrioritizeVisibleContent
+
+(This feature was a flag instead of a named option before 4.0).
+
+### Cache
+
+There are two types of cache, of very different nature:
+
+- You can cache individual components.
+- If you are using the php extension V8 you can cache a snapshot of the V8 virtual machine.
+
+#### Component cache
+
+Sometimes you want to cache a component and don't go through the server-side rendering process again. In that case, you can set the option `cached` to `true`:
+
+`{{ react_component('RecipesApp', {'props': props, 'cached': true}) }}`
+
+You can also set a cache key. This key could be for instance the id of an entity. Well, it is up to you.
+If you don't set an id, the id will be based on the name of the component, so no matter what props you pass, the component will be cached and rendered with the same representation.
+
+`{{ react_component('RecipesApp', {'props': props, 'cached': true, 'cache_key': "hi_there"}) }}`
+
+To enable/disable the cache globally for your app you need to write this configuration. The default value is disabled, so please enable this feature if you plan to use it.
+
+```yaml
+limenius_react:
+  serverside_rendering:
+    cache:
+      enabled: true
+```
+
+(This feature was called previously static render before 4.0).
+
+#### V8 cache
+
+If in your config.prod.yaml or `config/packages/prod/limenius_react.yaml` you add the following configuration, and you have V8js installed, this bundle will be much faster:
+
+```yaml
+limenius_react:
+  serverside_rendering:
+    cache:
+      enabled: true
+      # name of your app, it is the key of the cache where the v8 snapshot will be stored.
+      key: "recipes_app"
+```
+
+After the first page render, this will store a snapshot of the JS virtual machine V8js in the cache, so in subsequent visits, your whole JavaScript app doesn't need to be processed again, just the particular component that you want to render.
+
+With the cache enabled, if you change code of your JS app, you will need to clear the cache.
 
 ## License
 
