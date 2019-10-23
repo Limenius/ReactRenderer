@@ -8,9 +8,6 @@ use Psr\Log\LoggerInterface;
 use Nacmartin\PhpExecJs\PhpExecJs;
 use PHPUnit\Framework\TestCase;
 
-/**
- * Class PhpExecJsReactRendererTest
- */
 class PhpExecJsReactRendererTest extends TestCase
 {
     /**
@@ -28,10 +25,7 @@ class PhpExecJsReactRendererTest extends TestCase
      */
     private $phpExecJs;
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setUp()
+    public function setUp(): void
     {
         $this->logger = $this->getMockBuilder(LoggerInterface::class)
             ->getMock();
@@ -46,18 +40,13 @@ class PhpExecJsReactRendererTest extends TestCase
         $this->renderer->setPhpExecJs($this->phpExecJs);
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
     public function testServerBundleNotFound()
     {
+        $this->expectException(\RuntimeException::class);
         $this->renderer = new PhpExecJsReactRenderer(__DIR__.'/Fixtures/i-dont-exist.js', $this->logger, $this->contextProvider);
         $this->renderer->render('MyApp', 'props', 1, null, false);
     }
 
-    /**
-     * Test Plus
-     */
     public function testPlus()
     {
         $this->assertEquals([
@@ -68,9 +57,6 @@ class PhpExecJsReactRendererTest extends TestCase
         $this->renderer->render('MyApp', 'props', 1, null, false));
     }
 
-    /**
-     * Test with store data
-     */
     public function testWithStoreData()
     {
         $this->assertEquals([
@@ -81,12 +67,9 @@ class PhpExecJsReactRendererTest extends TestCase
         $this->renderer->render('MyApp', 'props', 1, array('Store' => '{foo:"bar"'), false));
     }
 
-    /**
-     * Test with React on Rails bundle
-     */
     public function testReactOnRails()
     {
-        /**
+        /*
          * import React from 'react';
          * import ReactOnRails from 'react-on-rails';
          * ReactOnRails.register({ MyApp: props => <h1>{props.msg}</h1> });
@@ -108,11 +91,9 @@ class PhpExecJsReactRendererTest extends TestCase
         $this->renderer->render('MyApp', '{msg:"It Works!"}', 1, null, true));
     }
 
-    /**
-     * @expectedException \Limenius\ReactRenderer\Exception\EvalJsException
-     */
     public function testFailLoud()
     {
+        $this->expectException(\Limenius\ReactRenderer\Exception\EvalJsException::class);
         $phpExecJs = $this->getMockBuilder(PhpExecJs::class)
             ->getMock();
         $phpExecJs->method('evalJs')

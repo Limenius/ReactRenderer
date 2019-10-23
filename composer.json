@@ -26,7 +26,8 @@
     "require-dev": {
         "squizlabs/php_codesniffer": "^2.5",
         "escapestudios/symfony2-coding-standard": "^2.9",
-        "wimg/php-compatibility": "^7.0"
+        "wimg/php-compatibility": "^7.0",
+        "phpstan/phpstan": "^0.11.19"
     },
     "scripts": {
         "default-scripts": [
