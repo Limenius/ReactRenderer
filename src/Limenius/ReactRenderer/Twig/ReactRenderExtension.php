@@ -79,7 +79,7 @@ class ReactRenderExtension extends \Twig_Extension
                 $data['dom_id'],
                 $this->jsonEncode($data['props'])
             );
-            if ($this->shouldBuffer() === true) {
+            if ($this->shouldBuffer($options) === true) {
                 $this->buffer[] = $tmpData;
             } else {
                 $str .= $tmpData;
