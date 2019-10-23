@@ -2,11 +2,14 @@
 
 namespace Limenius\ReactRenderer\Tests\Renderer;
 
-use Limenius\ReactRenderer\Renderer\PhpExecJsReactRenderer;
 use Limenius\ReactRenderer\Context\ContextProviderInterface;
-use Psr\Log\LoggerInterface;
+use Limenius\ReactRenderer\Exception\EvalJsException;
+use Limenius\ReactRenderer\Renderer\PhpExecJsReactRenderer;
 use Nacmartin\PhpExecJs\PhpExecJs;
+use PHPUnit\Framework\Exception;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 
 /**
  * Class PhpExecJsReactRendererTest
@@ -31,7 +34,7 @@ class PhpExecJsReactRendererTest extends TestCase
     /**
      * {@inheritdoc}
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->logger = $this->getMockBuilder(LoggerInterface::class)
             ->getMock();
@@ -46,11 +49,9 @@ class PhpExecJsReactRendererTest extends TestCase
         $this->renderer->setPhpExecJs($this->phpExecJs);
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
     public function testServerBundleNotFound()
     {
+        $this->expectException(\RuntimeException::class);
         $this->renderer = new PhpExecJsReactRenderer(__DIR__.'/Fixtures/i-dont-exist.js', $this->logger, $this->contextProvider);
         $this->renderer->render('MyApp', 'props', 1, null, false);
     }
@@ -108,9 +109,6 @@ class PhpExecJsReactRendererTest extends TestCase
         $this->renderer->render('MyApp', '{msg:"It Works!"}', 1, null, true));
     }
 
-    /**
-     * @expectedException \Limenius\ReactRenderer\Exception\EvalJsException
-     */
     public function testFailLoud()
     {
         $phpExecJs = $this->getMockBuilder(PhpExecJs::class)
@@ -119,6 +117,54 @@ class PhpExecJsReactRendererTest extends TestCase
             ->willReturn('{ "html" : "go for it", "hasErrors" : true, "consoleReplayScript": " - my replay"}');
         $this->renderer = new PhpExecJsReactRenderer(__DIR__.'/Fixtures/server-bundle.js', true, $this->contextProvider, $this->logger);
         $this->renderer->setPhpExecJs($phpExecJs);
+        $this->expectException(EvalJsException::class);
+        $this->renderer->render('MyApp', 'props', 1, null, true);
+    }
+
+    /**
+     * @testdox failLoud true bubbles thrown exceptions
+     */
+    public function testFailLoudBubblesThrownException()
+    {
+        $err = new Exception('test exception');
+        $this->phpExecJs->method('createContext')->willThrowException($err);
+        $this->renderer = new PhpExecJsReactRenderer(__DIR__.'/Fixtures/server-bundle.js', true, $this->contextProvider, $this->logger);
+        $this->renderer->setPhpExecJs($this->phpExecJs);
+
+        $this->expectExceptionObject($err);
+        $this->renderer->render('MyApp', 'props', 1, null, true);
+    }
+
+    /**
+     * @testdox failLoud false returns empty error result on exception
+     */
+    public function testFailQuietReturnsEmptyErrorResultOnException()
+    {
+        $this->phpExecJs->method('createContext')->willThrowException(new \Exception('test exception'));
+
+        $this->assertEquals(
+            [
+                'evaluated'     => '',
+                'consoleReplay' => '',
+                'hasErrors'     => true,
+            ],
+            $this->renderer->render('MyApp', 'props', 1, null, true)
+        );
+    }
+
+    /**
+     * @testdox failLoud false logs thrown exceptions
+     */
+    public function testFailQuietLogsThrownExceptions()
+    {
+        $err = new Exception('test exception');
+        $this->phpExecJs->method('createContext')->willThrowException($err);
+
+        $this->logger
+            ->expects($this->exactly(1))
+            ->method('log')
+            ->with(LogLevel::ERROR, 'test exception', ['exception' => $err]);
+
         $this->renderer->render('MyApp', 'props', 1, null, true);
     }
 }

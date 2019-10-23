@@ -4,6 +4,7 @@ namespace Limenius\ReactRenderer\Renderer;
 
 use Limenius\ReactRenderer\Context\ContextProviderInterface;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 
 /**
  * Class ExternalServerReactRenderer
@@ -55,23 +56,43 @@ class ExternalServerReactRenderer extends AbstractReactRenderer
      */
     public function render($componentName, $propsString, $uuid, $registeredStores = array(), $trace)
     {
-        if (strpos($this->serverSocketPath, '://') === false) {
-            $this->serverSocketPath = 'unix://'.$this->serverSocketPath;
+        try {
+            if (\strpos($this->serverSocketPath, '://') === false) {
+                $this->serverSocketPath = 'unix://'.$this->serverSocketPath;
+            }
+
+            if (!$sock = \stream_socket_client($this->serverSocketPath, $errno, $errstr)) {
+                throw new \RuntimeException($errstr);
+            }
+            \stream_socket_sendto(
+                $sock,
+                $this->wrap($componentName, $propsString, $uuid, $registeredStores, $trace)."\0"
+            );
+
+            $contents = '';
+
+            while (!\feof($sock)) {
+                $contents .= \fread($sock, 8192);
+            }
+            \fclose($sock);
+
+            $result = \json_decode($contents, true);
+        } catch (\Throwable $t) {
+            if ($this->failLoud) {
+                throw $t;
+            }
+
+            if ($this->logger) {
+                $this->logger->log(LogLevel::ERROR, $t->getMessage(), ['exception' => $t]);
+            }
+
+            return [
+                'evaluated'     => '',
+                'consoleReplay' => '',
+                'hasErrors'     => true,
+            ];
         }
 
-        if (!$sock = stream_socket_client($this->serverSocketPath, $errno, $errstr)) {
-            throw new \RuntimeException($errstr);
-        }
-        stream_socket_sendto($sock, $this->wrap($componentName, $propsString, $uuid, $registeredStores, $trace)."\0");
-
-        $contents = '';
-
-        while (!feof($sock)) {
-            $contents .= fread($sock, 8192);
-        }
-        fclose($sock);
-
-        $result = json_decode($contents, true);
         if ($result['hasErrors']) {
             $this->logErrors($result['consoleReplayScript']);
             if ($this->failLoud) {
