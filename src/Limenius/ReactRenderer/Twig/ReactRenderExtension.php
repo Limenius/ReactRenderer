@@ -58,7 +58,7 @@ class ReactRenderExtension extends \Twig_Extension
         );
     }
 
-    public function reactRenderComponentArray(string $componentName, array $options = array()): string
+    public function reactRenderComponentArray(string $componentName, array $options = array()): array
     {
         $props = isset($options['props']) ? $options['props'] : array();
         $propsArray = is_array($props) ? $props : $this->jsonDecode($props);
