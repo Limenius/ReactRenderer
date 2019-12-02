@@ -258,7 +258,7 @@ class ReactRenderExtension extends \Twig_Extension
 
     private function jsonDecode($input): array
     {
-        $json = json_decode($input);
+        $json = json_decode($input, true);
 
         if (json_last_error() !== 0) {
             throw new \Limenius\ReactRenderer\Exception\PropsDecodeException(
