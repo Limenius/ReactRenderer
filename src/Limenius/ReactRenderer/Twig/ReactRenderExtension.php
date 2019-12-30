@@ -3,10 +3,12 @@
 namespace Limenius\ReactRenderer\Twig;
 
 use Psr\Cache\CacheItemPoolInterface;
+use Twig\Extension\AbstractExtension;
+use Twig\TwigFunction;
 use Limenius\ReactRenderer\Renderer\AbstractReactRenderer;
 use Limenius\ReactRenderer\Context\ContextProviderInterface;
 
-class ReactRenderExtension extends \Twig_Extension
+class ReactRenderExtension extends AbstractExtension
 {
     protected $renderServerSide = false;
     protected $renderClientSide = false;
@@ -51,10 +53,10 @@ class ReactRenderExtension extends \Twig_Extension
     public function getFunctions(): array
     {
         return array(
-            new \Twig_SimpleFunction('react_component', array($this, 'reactRenderComponent'), array('is_safe' => array('html'))),
-            new \Twig_SimpleFunction('react_component_array', array($this, 'reactRenderComponentArray'), array('is_safe' => array('html'))),
-            new \Twig_SimpleFunction('redux_store', array($this, 'reactReduxStore'), array('is_safe' => array('html'))),
-            new \Twig_SimpleFunction('react_flush_buffer', array($this, 'reactFlushBuffer'), array('is_safe' => array('html'))),
+            new TwigFunction('react_component', array($this, 'reactRenderComponent'), array('is_safe' => array('html'))),
+            new TwigFunction('react_component_array', array($this, 'reactRenderComponentArray'), array('is_safe' => array('html'))),
+            new TwigFunction('redux_store', array($this, 'reactReduxStore'), array('is_safe' => array('html'))),
+            new TwigFunction('react_flush_buffer', array($this, 'reactFlushBuffer'), array('is_safe' => array('html'))),
         );
     }
 
