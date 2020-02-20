@@ -10,7 +10,7 @@ namespace Limenius\ReactRenderer\Context;
  */
 class GenericContextProvider implements ContextProviderInterface
 {
-    private $regex = '/(?<scheme>https?):\/\/(?<host>.*(\.[^\/(?:\d*)]*))(?::(?<port>\d*))(?<uri>(?<base>\/?[^\.]*\.[^\/\?]*)?(?<path>[^?\.*]*)\??(?<search>.*))/';
+    private $regex = '/(?<scheme>https?):\/\/(?<host>[^\/|:]*)(?::(?<port>\d*))?(?<uri>(?<base>\/?[^\.]*\.[^\/\?]*)?(?<path>[^?\.*]*)\??(?<search>.*))/';
     private $uriParts;
 
     public function __construct(string $uri)

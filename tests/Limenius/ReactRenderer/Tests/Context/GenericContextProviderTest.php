@@ -18,6 +18,7 @@ class GenericContextProviderTest extends TestCase
     {
         $provider = new GenericContextProvider('https://example.com:443');
         $context = $provider->getContext(false);
+        $this->assertEquals('https://example.com:443', $context['href']);
         $this->assertEquals('/', $context['location']);
     }
 
@@ -25,6 +26,7 @@ class GenericContextProviderTest extends TestCase
     {
         $provider = new GenericContextProvider('https://example.com:443/');
         $context = $provider->getContext(false);
+        $this->assertEquals('https://example.com:443/', $context['href']);
         $this->assertEquals('/', $context['location']);
     }
 
@@ -32,6 +34,7 @@ class GenericContextProviderTest extends TestCase
     {
         $provider = new GenericContextProvider('https://example.com:443/part');
         $context = $provider->getContext(false);
+        $this->assertEquals('https://example.com:443/part', $context['href']);
         $this->assertEquals('/part', $context['location']);
     }
 
@@ -39,6 +42,7 @@ class GenericContextProviderTest extends TestCase
     {
         $provider = new GenericContextProvider('https://example.com:443/part?foo=bar');
         $context = $provider->getContext(false);
+        $this->assertEquals('https://example.com:443/part?foo=bar', $context['href']);
         $this->assertEquals('/part?foo=bar', $context['location']);
     }
 
@@ -46,6 +50,7 @@ class GenericContextProviderTest extends TestCase
     {
         $provider = new GenericContextProvider('https://example.com:443/index.php/part?foo=bar');
         $context = $provider->getContext(false);
+        $this->assertEquals('https://example.com:443/index.php/part?foo=bar', $context['href']);
         $this->assertEquals('/index.php/part?foo=bar', $context['location']);
     }
 
@@ -53,6 +58,7 @@ class GenericContextProviderTest extends TestCase
     {
         $provider = new GenericContextProvider('http://example.com:443/part?foo=bar');
         $context = $provider->getContext(false);
+        $this->assertEquals('http://example.com:443/part?foo=bar', $context['href']);
         $this->assertEquals('http', $context['scheme']);
     }
 
@@ -60,6 +66,7 @@ class GenericContextProviderTest extends TestCase
     {
         $provider = new GenericContextProvider('https://example.com:443/part?foo=bar');
         $context = $provider->getContext(false);
+        $this->assertEquals('https://example.com:443/part?foo=bar', $context['href']);
         $this->assertEquals('https', $context['scheme']);
     }
 
@@ -67,6 +74,7 @@ class GenericContextProviderTest extends TestCase
     {
         $provider = new GenericContextProvider('https://example.com:443/part?foo=bar');
         $context = $provider->getContext(false);
+        $this->assertEquals('https://example.com:443/part?foo=bar', $context['href']);
         $this->assertEquals('example.com', $context['host']);
     }
 
@@ -74,6 +82,7 @@ class GenericContextProviderTest extends TestCase
     {
         $provider = new GenericContextProvider('https://sub.example.com:443/part?foo=bar');
         $context = $provider->getContext(false);
+        $this->assertEquals('https://sub.example.com:443/part?foo=bar', $context['href']);
         $this->assertEquals('sub.example.com', $context['host']);
     }
 
@@ -81,6 +90,7 @@ class GenericContextProviderTest extends TestCase
     {
         $provider = new GenericContextProvider('https://example.com:8089/part?foo=bar');
         $context = $provider->getContext(false);
+        $this->assertEquals('https://example.com:8089/part?foo=bar', $context['href']);
         $this->assertEquals('8089', $context['port']);
     }
 
@@ -88,6 +98,7 @@ class GenericContextProviderTest extends TestCase
     {
         $provider = new GenericContextProvider('https://sub.example.com/part?foo=bar');
         $context = $provider->getContext(false);
+        $this->assertEquals('https://sub.example.com/part?foo=bar', $context['href']);
         $this->assertEquals('', $context['port']);
     }
 
@@ -95,6 +106,7 @@ class GenericContextProviderTest extends TestCase
     {
         $provider = new GenericContextProvider('https://example.com:8089/part?foo=bar');
         $context = $provider->getContext(false);
+        $this->assertEquals('https://example.com:8089/part?foo=bar', $context['href']);
         $this->assertEquals('', $context['base']);
     }
 
@@ -102,6 +114,7 @@ class GenericContextProviderTest extends TestCase
     {
         $provider = new GenericContextProvider('https://example.com:8089/index.php?foo=bar');
         $context = $provider->getContext(false);
+        $this->assertEquals('https://example.com:8089/index.php?foo=bar', $context['href']);
         $this->assertEquals('/index.php', $context['base']);
     }
 
@@ -109,6 +122,7 @@ class GenericContextProviderTest extends TestCase
     {
         $provider = new GenericContextProvider('https://example.com:8089/?foo=bar');
         $context = $provider->getContext(false);
+        $this->assertEquals('https://example.com:8089/?foo=bar', $context['href']);
         $this->assertEquals('/', $context['pathname']);
     }
 
@@ -116,6 +130,7 @@ class GenericContextProviderTest extends TestCase
     {
         $provider = new GenericContextProvider('https://example.com:8089/index.php/?foo=bar');
         $context = $provider->getContext(false);
+        $this->assertEquals('https://example.com:8089/index.php/?foo=bar', $context['href']);
         $this->assertEquals('/', $context['pathname']);
     }
 
@@ -123,6 +138,7 @@ class GenericContextProviderTest extends TestCase
     {
         $provider = new GenericContextProvider('https://example.com:8089/index.php/part?foo=bar');
         $context = $provider->getContext(false);
+        $this->assertEquals('https://example.com:8089/index.php/part?foo=bar', $context['href']);
         $this->assertEquals('/part', $context['pathname']);
     }
 
@@ -130,6 +146,7 @@ class GenericContextProviderTest extends TestCase
     {
         $provider = new GenericContextProvider('https://example.com:8089/index.php/part/sub?foo=bar');
         $context = $provider->getContext(false);
+        $this->assertEquals('https://example.com:8089/index.php/part/sub?foo=bar', $context['href']);
         $this->assertEquals('/part/sub', $context['pathname']);
     }
 
@@ -137,6 +154,7 @@ class GenericContextProviderTest extends TestCase
     {
         $provider = new GenericContextProvider('https://example.com:8089/index.php/part/sub');
         $context = $provider->getContext(false);
+        $this->assertEquals('https://example.com:8089/index.php/part/sub', $context['href']);
         $this->assertEquals('', $context['search']);
     }
 
@@ -144,6 +162,7 @@ class GenericContextProviderTest extends TestCase
     {
         $provider = new GenericContextProvider('https://example.com:8089/index.php/part/sub?');
         $context = $provider->getContext(false);
+        $this->assertEquals('https://example.com:8089/index.php/part/sub?', $context['href']);
         $this->assertEquals('', $context['search']);
     }
 
@@ -151,6 +170,7 @@ class GenericContextProviderTest extends TestCase
     {
         $provider = new GenericContextProvider('https://example.com:8089/index.php/part/sub?foo=bar');
         $context = $provider->getContext(false);
+        $this->assertEquals('https://example.com:8089/index.php/part/sub?foo=bar', $context['href']);
         $this->assertEquals('foo=bar', $context['search']);
     }
 
@@ -158,6 +178,7 @@ class GenericContextProviderTest extends TestCase
     {
         $provider = new GenericContextProvider('https://example.com:8089/index.php/part/sub?foo=bar&bar=baz');
         $context = $provider->getContext(false);
+        $this->assertEquals('https://example.com:8089/index.php/part/sub?foo=bar&bar=baz', $context['href']);
         $this->assertEquals('foo=bar&bar=baz', $context['search']);
     }
 }
