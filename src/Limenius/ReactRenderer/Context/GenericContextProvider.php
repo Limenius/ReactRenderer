@@ -10,47 +10,66 @@ namespace Limenius\ReactRenderer\Context;
  */
 class GenericContextProvider implements ContextProviderInterface
 {
-    private $regex = '/(?<scheme>https?):\/\/(?<host>[^\/|:]*)(?::(?<port>\d*))?(?<uri>(?<base>\/?[^\.]*\.[^\/\?]*)?(?<path>[^?\.*]*)\??(?<search>.*))/';
+    private $uri;
     private $uriParts;
 
     public function __construct(string $uri)
     {
-        preg_match($this->regex, $uri, $this->uriParts, PREG_OFFSET_CAPTURE);
+        $this->uri = $uri;
+        $this->uriParts = parse_url($uri);
     }
 
     private function getRequestUri()
     {
-        return $this->uriParts['uri'][0] ?: '/';
+        $uri = !empty($this->uriParts['path']) ? $this->uriParts['path'] : '/';
+
+        if (!empty($this->uriParts['query'])) {
+            $uri .= "?{$this->uriParts['query']}";
+        }
+
+        return $uri;
     }
 
     private function getScheme()
     {
-        return $this->uriParts['scheme'][0];
+        return $this->uriParts['scheme'];
     }
 
     private function getHost()
     {
-        return $this->uriParts['host'][0];
+        return $this->uriParts['host'];
     }
 
     private function getPort()
     {
-        return $this->uriParts['port'][0];
+        return !empty($this->uriParts['port']) ? $this->uriParts['port'] : '';
     }
 
     private function getBase()
     {
-        return $this->uriParts['base'][0];
+        if (empty($this->uriParts['path'])) {
+            return '';
+        }
+
+        preg_match('/(?<base>\/[^\.]*\.\w*)/', $this->uriParts['path'], $matches);
+
+        return !empty($matches['base']) ? $matches['base'] : '';
     }
 
     private function getPathName()
     {
-        return $this->uriParts['path'][0];
+        if (empty($this->uriParts['path'])) {
+            return '';
+        }
+
+        preg_match('/(?:\/[^\.]*\.\w*)?(?<base>\/.*)/', $this->uriParts['path'], $matches);
+
+        return !empty($matches['base']) ? $matches['base'] : '';
     }
 
     private function getSearch()
     {
-        return $this->uriParts['search'][0];
+        return !empty($this->uriParts['query']) ? $this->uriParts['query'] : '';
     }
 
     /**
@@ -63,7 +82,7 @@ class GenericContextProvider implements ContextProviderInterface
     {
         return [
             'serverSide' => $serverSide,
-            'href' => $this->uriParts[0][0],
+            'href' => $this->uri,
             'location' => $this->getRequestUri(),
             'scheme' => $this->getScheme(),
             'host' => $this->getHost(),
