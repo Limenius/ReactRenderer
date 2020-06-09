@@ -20,7 +20,13 @@ class ReactRenderExtension extends \Twig_Extension
     private $buffer;
     private $cache;
 
-    public function __construct(AbstractReactRenderer $renderer = null, ContextProviderInterface $contextProvider, string $defaultRendering, bool $trace = false)
+    /**
+     * @param AbstractReactRenderer $renderer
+     * @param ContextProviderInterface $contextProvider
+     * @param string $defaultRendering
+     * @param boolean $trace
+     */
+    public function __construct(AbstractReactRenderer $renderer = null, ContextProviderInterface $contextProvider, $defaultRendering, $trace = false)
     {
         $this->renderer = $renderer;
         $this->contextProvider = $contextProvider;
@@ -43,12 +49,18 @@ class ReactRenderExtension extends \Twig_Extension
         }
     }
 
+    /**
+     * @param CacheItemPoolInterface $cache
+     */
     public function setCache(CacheItemPoolInterface $cache)
     {
         $this->cache = $cache;
     }
 
-    public function getFunctions(): array
+    /**
+     * @return array
+     */
+    public function getFunctions()
     {
         return array(
             new \Twig_SimpleFunction('react_component', array($this, 'reactRenderComponent'), array('is_safe' => array('html'))),
@@ -58,7 +70,12 @@ class ReactRenderExtension extends \Twig_Extension
         );
     }
 
-    public function reactRenderComponentArray(string $componentName, array $options = array()): array
+    /**
+     * @param string $componentName
+     * @param array $options
+     * @return array
+     */
+    public function reactRenderComponentArray($componentName, array $options = array())
     {
         $props = isset($options['props']) ? $options['props'] : array();
         $propsArray = is_array($props) ? $props : $this->jsonDecode($props);
@@ -103,7 +120,12 @@ class ReactRenderExtension extends \Twig_Extension
         return $evaluated;
     }
 
-    public function reactRenderComponentArrayStatic(string $componentName, array $options = array()): string
+    /**
+     * @param string $componentName
+     * @param array $options
+     * @return string
+     */
+    public function reactRenderComponentArrayStatic($componentName, array $options = array())
     {
         $renderer = $this->renderer;
         $this->renderer = $this->staticRenderer;
@@ -114,7 +136,12 @@ class ReactRenderExtension extends \Twig_Extension
         return $rendered;
     }
 
-    public function reactRenderComponent(string $componentName, array $options = array()): string
+    /**
+     * @param string $componentName
+     * @param array $options
+     * @return string
+     */
+    public function reactRenderComponent($componentName, array $options = array())
     {
         $props = isset($options['props']) ? $options['props'] : array();
         $propsArray = is_array($props) ? $props : $this->jsonDecode($props);
@@ -152,7 +179,12 @@ class ReactRenderExtension extends \Twig_Extension
         return $str;
     }
 
-    public function reactRenderComponentStatic(string $componentName, array $options = array()): string
+    /**
+     * @param string $componentName
+     * @param array $options
+     * @return string
+     */
+    public function reactRenderComponentStatic($componentName, array $options = array())
     {
         $renderer = $this->renderer;
         $this->renderer = $this->staticRenderer;
@@ -163,7 +195,12 @@ class ReactRenderExtension extends \Twig_Extension
         return $rendered;
     }
 
-    public function reactReduxStore(string $storeName, $props): string
+    /**
+     * @param string $storeName
+     * @param array|string $props
+     * @return string
+     */
+    public function reactReduxStore($storeName, $props)
     {
         $propsString = is_array($props) ? $this->jsonEncode($props) : $props;
         $this->registeredStores[$storeName] = $propsString;
@@ -177,7 +214,10 @@ class ReactRenderExtension extends \Twig_Extension
         return $this->renderContext().$reduxStoreTag;
     }
 
-    public function reactFlushBuffer(): string
+    /**
+     * @return string
+     */
+    public function reactFlushBuffer()
     {
         $str = '';
 
@@ -190,7 +230,11 @@ class ReactRenderExtension extends \Twig_Extension
         return $str;
     }
 
-    public function shouldRenderServerSide(array $options): bool
+    /**
+     * @param array $options
+     * @return boolean
+     */
+    public function shouldRenderServerSide(array $options)
     {
         if (isset($options['rendering'])) {
             if (in_array($options['rendering'], ['server_side', 'both'], true)) {
@@ -203,7 +247,11 @@ class ReactRenderExtension extends \Twig_Extension
         return $this->renderServerSide;
     }
 
-    public function shouldRenderClientSide(array $options): string
+    /**
+     * @param array $options
+     * @return string
+     */
+    public function shouldRenderClientSide(array $options)
     {
         if (isset($options['rendering'])) {
             if (in_array($options['rendering'], ['client_side', 'both'], true)) {
@@ -216,17 +264,27 @@ class ReactRenderExtension extends \Twig_Extension
         return $this->renderClientSide;
     }
 
-    public function getName(): string
+    /**
+     * @return string
+     */
+    public function getName()
     {
         return 'react_render_extension';
     }
 
-    protected function shouldTrace(array $options): bool
+    /**
+     * @param array $options
+     * @return boolean
+     */
+    protected function shouldTrace(array $options)
     {
         return isset($options['trace']) ? $options['trace'] : $this->trace;
     }
 
-    private function renderContext(): string
+    /**
+     * @return string
+     */
+    private function renderContext()
     {
         if ($this->needsToSetRailsContext) {
             $this->needsToSetRailsContext = false;
@@ -240,7 +298,11 @@ class ReactRenderExtension extends \Twig_Extension
         return '';
     }
 
-    private function jsonEncode($input): string
+    /**
+     * @param array $input
+     * @return string
+     */
+    private function jsonEncode($input)
     {
         $json = json_encode($input);
 
@@ -256,7 +318,11 @@ class ReactRenderExtension extends \Twig_Extension
         return $json;
     }
 
-    private function jsonDecode($input): array
+    /**
+     * @param string $input
+     * @return array
+     */
+    private function jsonDecode($input)
     {
         $json = json_decode($input);
 
@@ -272,7 +338,12 @@ class ReactRenderExtension extends \Twig_Extension
         return $json;
     }
 
-    private function serverSideRender(array $data, array $options): array
+    /**
+     * @param array $data
+     * @param array $options
+     * @return array
+     */
+    private function serverSideRender(array $data, array $options)
     {
         if ($this->shouldCache($options)) {
             return $this->renderCached($data, $options);
@@ -281,7 +352,11 @@ class ReactRenderExtension extends \Twig_Extension
         }
     }
 
-    private function doServerSideRender($data): array
+    /**
+     * @param array $data
+     * @return array
+     */
+    private function doServerSideRender($data)
     {
         return $this->renderer->render(
             $data['component_name'],
@@ -292,7 +367,12 @@ class ReactRenderExtension extends \Twig_Extension
         );
     }
 
-    private function renderCached($data, $options): array
+    /**
+     * @param array|null $data
+     * @param array $options
+     * @return array
+     */
+    private function renderCached($data, $options)
     {
         if ($this->cache === null) {
             return $this->doServerSideRender($data);
@@ -311,17 +391,30 @@ class ReactRenderExtension extends \Twig_Extension
         return $rendered;
     }
 
-    private function getCacheKey($options, $data): string
+    /**
+     * @param array $options
+     * @param array $data
+     * @return string
+     */
+    private function getCacheKey($options, $data)
     {
         return isset($options['cache_key']) && $options['cache_key'] ? $options['cache_key'] : $data['component_name'].'.rendered';
     }
 
-    private function shouldCache($options): bool
+    /**
+     * @param array $options
+     * @return boolean
+     */
+    private function shouldCache($options)
     {
         return isset($options['cached']) && $options['cached'];
     }
 
-    private function shouldBuffer($options): bool
+    /**
+     * @param array $options
+     * @return boolean
+     */
+    private function shouldBuffer($options)
     {
         return isset($options['buffered']) && $options['buffered'];
     }
