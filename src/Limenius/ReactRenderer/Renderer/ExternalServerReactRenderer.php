@@ -64,11 +64,7 @@ class ExternalServerReactRenderer extends AbstractReactRenderer
         }
         stream_socket_sendto($sock, $this->wrap($componentName, $propsString, $uuid, $registeredStores, $trace)."\0");
 
-        $contents = '';
-
-        while (!feof($sock)) {
-            $contents .= fread($sock, 8192);
-        }
+        $contents = stream_get_contents($sock);
         fclose($sock);
 
         $result = json_decode($contents, true);
