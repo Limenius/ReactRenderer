@@ -64,7 +64,10 @@ class ExternalServerReactRenderer extends AbstractReactRenderer
         }
         stream_socket_sendto($sock, $this->wrap($componentName, $propsString, $uuid, $registeredStores, $trace)."\0");
 
-        $contents = stream_get_contents($sock);
+        if (false === $contents = stream_get_contents($sock)) {
+            throw new \RuntimeException('Failed to read content from external renderer.');
+        }
+
         fclose($sock);
 
         $result = json_decode($contents, true);
