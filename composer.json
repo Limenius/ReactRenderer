@@ -20,6 +20,7 @@
     },
     "require": {
         "php": ">=5.5.0",
+        "ext-json": "*",
         "nacmartin/phpexecjs": "^3.0",
         "twig/twig": "^2.4|^3.0"
     },
