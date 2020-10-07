@@ -18,5 +18,5 @@ install:
     - composer update $COMPOSER_FLAGS
 
 script:
-    - phpcs -p
+    - ./vendor/bin/phpcs -n
     - phpunit
