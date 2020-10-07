@@ -27,6 +27,7 @@ class SymfonyContextProvider implements ContextProviderInterface
      * getContext
      *
      * @param boolean $serverSide whether is this a server side context
+     *
      * @return array the context information
      */
     public function getContext($serverSide)

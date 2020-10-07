@@ -81,7 +81,7 @@ class ExternalServerReactRenderer extends AbstractReactRenderer
         return [
             'evaluated' => $result['html'],
             'consoleReplay' => $result['consoleReplayScript'],
-            'hasErrors' => $result['hasErrors']
+            'hasErrors' => $result['hasErrors'],
         ];
     }
 }

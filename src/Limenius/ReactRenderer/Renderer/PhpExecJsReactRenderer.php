@@ -51,7 +51,6 @@ class PhpExecJsReactRenderer extends AbstractReactRenderer
      * @param LoggerInterface          $logger
      */
     public function __construct($serverBundlePath, $failLoud = false, ContextProviderInterface $contextProvider, LoggerInterface $logger = null)
-
     {
         $this->serverBundlePath = $serverBundlePath;
         $this->failLoud = $failLoud;
@@ -112,14 +111,14 @@ class PhpExecJsReactRenderer extends AbstractReactRenderer
         return [
             'evaluated' => $result['html'],
             'consoleReplay' => $result['consoleReplayScript'],
-            'hasErrors' => $result['hasErrors']
+            'hasErrors' => $result['hasErrors'],
         ];
     }
 
     protected function loadServerBundle()
     {
         if (!$serverBundle = @file_get_contents($this->serverBundlePath)) {
-            throw new \RuntimeException('Server bundle not found in path: '.$this->serverBundlePath);
+            throw new \RuntimeException(sprintf('Server bundle not found in path: %s', $this->serverBundlePath));
         }
 
         return $serverBundle;
@@ -134,6 +133,7 @@ class PhpExecJsReactRenderer extends AbstractReactRenderer
 
     /**
      * @param $trace
+     *
      * @return string
      */
     protected function timerPolyfills($trace)
@@ -170,6 +170,7 @@ JS;
     /**
      * @param $functionName
      * @param $trace
+     *
      * @return string
      */
     protected function undefinedForPhpExecJsLogging($functionName, $trace)

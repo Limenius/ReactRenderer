@@ -13,6 +13,19 @@
     <rule ref="PEAR.Functions.ValidDefaultValue.NotAtEnd">
         <severity>0</severity>
     </rule>
+    <rule ref="Symfony.Commenting.License.Warning">
+        <severity>0</severity>
+    </rule>
+    <rule ref="Symfony.Commenting.FunctionComment.Missing">
+        <severity>0</severity>
+    </rule>
+    <rule ref="Symfony.Commenting.ClassComment.Missing">
+        <severity>0</severity>
+    </rule>
+    <rule ref="Symfony.Formatting.ReturnOrThrow.Invalid">
+        <severity>0</severity>
+    </rule>
+ 
 
     <arg value="p"/>
     <arg name="colors"/>

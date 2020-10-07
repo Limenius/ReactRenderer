@@ -49,22 +49,26 @@ class PhpExecJsReactRendererTest extends TestCase
 
     public function testPlus()
     {
-        $this->assertEquals([
-            'evaluated' => 'go for it',
-            'consoleReplay' => ' - my replay',
-            'hasErrors' => false,
-        ],
-        $this->renderer->render('MyApp', 'props', 1, null, false));
+        $this->assertEquals(
+            [
+                'evaluated' => 'go for it',
+                'consoleReplay' => ' - my replay',
+                'hasErrors' => false,
+            ],
+            $this->renderer->render('MyApp', 'props', 1, null, false)
+        );
     }
 
     public function testWithStoreData()
     {
-        $this->assertEquals([
-            'evaluated' => 'go for it',
-            'consoleReplay' => ' - my replay',
-            'hasErrors' => false,
-        ],
-        $this->renderer->render('MyApp', 'props', 1, array('Store' => '{foo:"bar"'), false));
+        $this->assertEquals(
+            [
+                'evaluated' => 'go for it',
+                'consoleReplay' => ' - my replay',
+                'hasErrors' => false,
+            ],
+            $this->renderer->render('MyApp', 'props', 1, array('Store' => '{foo:"bar"'), false)
+        );
     }
 
     public function testReactOnRails()
@@ -83,12 +87,14 @@ class PhpExecJsReactRendererTest extends TestCase
         $replay .= 'console.log.apply(console, ["[SERVER] RENDERED MyApp to dom node with id: 1 with props, railsContext:","{\"msg\":\"It Works!\"}","{\"someContext\":\"provided\"}"]);'."\n";
         $replay .= '</script>';
 
-        $this->assertEquals([
-            'evaluated' => $expected,
-            'consoleReplay' => $replay,
-            'hasErrors' => false,
-        ],
-        $this->renderer->render('MyApp', '{msg:"It Works!"}', 1, null, true));
+        $this->assertEquals(
+            [
+                'evaluated' => $expected,
+                'consoleReplay' => $replay,
+                'hasErrors' => false,
+            ],
+            $this->renderer->render('MyApp', '{msg:"It Works!"}', 1, null, true)
+        );
     }
 
     public function testFailLoud()

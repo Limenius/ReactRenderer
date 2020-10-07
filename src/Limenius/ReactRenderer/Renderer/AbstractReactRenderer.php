@@ -55,8 +55,8 @@ JS;
 
     /**
      * @param array $registeredStores
-     *
      * @param array $context
+     *
      * @return string
      */
     protected function initializeReduxStores($registeredStores = array(), $context = array())
@@ -65,7 +65,7 @@ JS;
             return '';
         }
 
-        $result = 'var reduxProps, context, storeGenerator, store' . PHP_EOL;
+        $result = 'var reduxProps, context, storeGenerator, store'.PHP_EOL;
         foreach ($registeredStores as $storeName => $reduxProps) {
             $result .= <<<JS
 reduxProps = $reduxProps;
@@ -78,6 +78,7 @@ JS;
 
         return $result;
     }
+
 
     /**
      * @param string $name
