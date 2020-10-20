@@ -30,7 +30,7 @@ abstract class AbstractReactRenderer
      *
      * @return array
      */
-    abstract public function render($componentName, $propsString, $uuid, $registeredStores = array(), $trace);
+    abstract public function render($componentName, $propsString, $uuid, $registeredStores = array(), $trace = false);
 
     /**
      * @return string
@@ -89,7 +89,7 @@ JS;
      *
      * @return string
      */
-    protected function wrap($name, $propsString, $uuid, $registeredStores = array(), $trace)
+    protected function wrap($name, $propsString, $uuid, $registeredStores = array(), $trace = false)
     {
         $traceStr = $trace ? 'true' : 'false';
         $context = json_encode($this->contextProvider->getContext(true));

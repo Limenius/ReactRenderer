@@ -28,7 +28,7 @@ class ExternalServerReactRenderer extends AbstractReactRenderer
      * @param ContextProviderInterface $contextProvider
      * @param LoggerInterface          $logger
      */
-    public function __construct($serverSocketPath, $failLoud = false, ContextProviderInterface $contextProvider, LoggerInterface $logger = null)
+    public function __construct($serverSocketPath, $failLoud, ContextProviderInterface $contextProvider, LoggerInterface $logger = null)
     {
         $this->serverSocketPath = $serverSocketPath;
         $this->failLoud = $failLoud;
@@ -53,7 +53,7 @@ class ExternalServerReactRenderer extends AbstractReactRenderer
      *
      * @return array
      */
-    public function render($componentName, $propsString, $uuid, $registeredStores = array(), $trace)
+    public function render($componentName, $propsString, $uuid, $registeredStores = array(), $trace = false)
     {
         if (strpos($this->serverSocketPath, '://') === false) {
             $this->serverSocketPath = 'unix://'.$this->serverSocketPath;

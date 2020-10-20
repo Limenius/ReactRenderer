@@ -50,7 +50,7 @@ class PhpExecJsReactRenderer extends AbstractReactRenderer
      * @param ContextProviderInterface $contextProvider
      * @param LoggerInterface          $logger
      */
-    public function __construct($serverBundlePath, $failLoud = false, ContextProviderInterface $contextProvider, LoggerInterface $logger = null)
+    public function __construct($serverBundlePath, $failLoud, ContextProviderInterface $contextProvider, LoggerInterface $logger = null)
     {
         $this->serverBundlePath = $serverBundlePath;
         $this->failLoud = $failLoud;
@@ -90,7 +90,7 @@ class PhpExecJsReactRenderer extends AbstractReactRenderer
      *
      * @return array
      */
-    public function render($componentName, $propsString, $uuid, $registeredStores = array(), $trace)
+    public function render($componentName, $propsString, $uuid, $registeredStores = array(), $trace = false)
     {
         $this->ensurePhpExecJsIsBuilt();
         if ($this->needToSetContext) {
